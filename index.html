@@ -1,0 +1,3118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Executive Performance System — ANCORD 30D</title>
+
+<!-- ── PWA META ── -->
+<meta name="application-name" content="EPS · ANCORD">
+<meta name="description" content="Sistema operacional pessoal de 30 dias para aprovação na ANCORD. Alta performance, disciplina e propósito.">
+<meta name="theme-color" content="#BFA46A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EPS · ANCORD">
+<meta name="msapplication-TileColor" content="#0F0F16">
+<meta name="msapplication-TileImage" content="icon-192.png">
+
+<!-- ── MANIFEST ── -->
+<link rel="manifest" href="manifest.json">
+
+<!-- ── ICONS ── -->
+<link rel="icon" type="image/svg+xml" href="icon-192.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+
+<!-- ── FONTS ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<!-- ── APPLE SPLASH (status bar safe area) ── -->
+<style>
+  :root { --sat: env(safe-area-inset-top); --sab: env(safe-area-inset-bottom); --sal: env(safe-area-inset-left); --sar: env(safe-area-inset-right); }
+  body { padding-top: var(--sat); }
+  .sidebar { padding-bottom: calc(var(--sab) + 8px); }
+</style>
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --ink:        #08080C;
+  --ink2:       #0F0F16;
+  --ink3:       #161620;
+  --ink4:       #1E1E2C;
+  --ink5:       #272738;
+  --ink6:       #303048;
+
+  --gold:       #BFA46A;
+  --gold-hi:    #D4B87A;
+  --gold-lo:    #8A7040;
+  --gold-glass: rgba(191,164,106,0.12);
+  --gold-edge:  rgba(191,164,106,0.22);
+
+  --ivory:      #EDE8DC;
+  --ivory-dim:  #A09880;
+  --ivory-fade: #5A5448;
+
+  --blue:       #5B9CF6;
+  --teal:       #3EC9A7;
+  --rose:       #E07070;
+  --lavender:   #9D8FE8;
+  --amber:      #E8A83C;
+
+  --glass:      rgba(255,255,255,0.04);
+  --glass-hi:   rgba(255,255,255,0.07);
+  --edge:       rgba(255,255,255,0.07);
+  --edge-gold:  rgba(191,164,106,0.18);
+
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+
+  --shadow: 0 2px 20px rgba(0,0,0,0.4);
+  --shadow-gold: 0 0 40px rgba(191,164,106,0.08);
+}
+
+/* ═══════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--ink);
+  color: var(--ivory);
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--ink); }
+::-webkit-scrollbar-thumb { background: var(--ink5); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold-lo); }
+
+/* ── GRAIN OVERLAY ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999; opacity: 0.6;
+}
+
+/* ═══════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════ */
+.app {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background: var(--ink2);
+  border-right: 1px solid var(--edge);
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 0 24px;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.sidebar-brand {
+  padding: 0 20px 28px;
+  border-bottom: 1px solid var(--edge);
+}
+
+.brand-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.brand-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ivory);
+  line-height: 1.1;
+}
+
+.brand-name span { color: var(--gold); }
+
+.sidebar-nav {
+  flex: 1;
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-group-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  color: var(--ivory-fade);
+  text-transform: uppercase;
+  padding: 12px 8px 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 10px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--ivory-dim);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+.nav-item:hover {
+  background: var(--glass-hi);
+  color: var(--ivory);
+  border-color: var(--edge);
+}
+
+.nav-item.active {
+  background: var(--gold-glass);
+  color: var(--gold-hi);
+  border-color: var(--gold-edge);
+}
+
+.nav-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+
+.sidebar-footer {
+  padding: 16px 20px 0;
+  border-top: 1px solid var(--edge);
+}
+
+.sidebar-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.sidebar-stat-label { font-size: 10px; color: var(--ivory-fade); font-family: 'JetBrains Mono', monospace; }
+.sidebar-stat-value { font-size: 12px; color: var(--gold); font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+
+/* ── MAIN ── */
+.main {
+  margin-left: 220px;
+  min-height: 100vh;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  position: sticky; top: 0;
+  background: rgba(8,8,12,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--edge);
+  padding: 14px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 50;
+}
+
+.topbar-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ivory);
+}
+
+.topbar-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.topbar-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  padding: 4px 10px;
+  border-radius: 99px;
+  text-transform: uppercase;
+}
+
+.tb-gold { background: var(--gold-glass); color: var(--gold); border: 1px solid var(--gold-edge); }
+.tb-teal { background: rgba(62,201,167,0.1); color: var(--teal); border: 1px solid rgba(62,201,167,0.2); }
+.tb-blue { background: rgba(91,156,246,0.1); color: var(--blue); border: 1px solid rgba(91,156,246,0.2); }
+
+/* ── CONTENT ── */
+.content {
+  padding: 40px 40px 80px;
+  max-width: 1100px;
+}
+
+/* ── PAGE / SECTION ── */
+.page { display: none; }
+.page.active { display: block; animation: pageIn 0.35s ease both; }
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTS
+═══════════════════════════════════════════ */
+
+/* ── SECTION HEADER ── */
+.sec-header {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.sec-index {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--gold);
+  background: var(--gold-glass);
+  border: 1px solid var(--gold-edge);
+  padding: 4px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.15em;
+  white-space: nowrap;
+  margin-bottom: 3px;
+}
+
+.sec-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ivory);
+  line-height: 1;
+}
+
+.sec-rule { flex: 1; height: 1px; background: var(--edge); margin-bottom: 4px; }
+
+/* ── CARD ── */
+.card {
+  background: var(--ink2);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.25s;
+}
+
+.card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--edge-gold) 50%, transparent 100%);
+}
+
+.card:hover { border-color: var(--edge-gold); }
+
+.card-p { padding: 24px; }
+.card-gold { border-color: var(--gold-edge); background: linear-gradient(135deg, var(--ink2), rgba(191,164,106,0.04)); }
+
+/* ── GRID ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+@media(max-width:768px) { .grid-2,.grid-3,.grid-4 { grid-template-columns: 1fr; } }
+
+/* ── TIME ROW ── */
+.time-stack { display: flex; flex-direction: column; gap: 5px; }
+
+.time-row {
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: var(--r-sm);
+  background: var(--ink3);
+  border: 1px solid var(--edge);
+  border-left: 3px solid;
+  transition: all 0.2s;
+}
+
+.time-row:hover { background: var(--ink4); transform: translateX(4px); }
+
+.time-row.c-gold  { border-left-color: var(--gold); }
+.time-row.c-blue  { border-left-color: var(--blue); }
+.time-row.c-teal  { border-left-color: var(--teal); }
+.time-row.c-rose  { border-left-color: var(--rose); }
+.time-row.c-lav   { border-left-color: var(--lavender); }
+.time-row.c-amber { border-left-color: var(--amber); }
+.time-row.c-dim   { border-left-color: var(--ink6); }
+
+.t-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--gold);
+  font-weight: 400;
+}
+
+.t-act { font-size: 13px; font-weight: 600; color: var(--ivory); }
+.t-sub { font-size: 11px; color: var(--ivory-dim); font-weight: 400; margin-top: 1px; }
+
+.t-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  padding: 3px 8px;
+  border-radius: 99px;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.b-gold   { background: var(--gold-glass); color: var(--gold); border: 1px solid var(--gold-edge); }
+.b-blue   { background: rgba(91,156,246,0.1); color: var(--blue); border: 1px solid rgba(91,156,246,0.2); }
+.b-teal   { background: rgba(62,201,167,0.1); color: var(--teal); border: 1px solid rgba(62,201,167,0.2); }
+.b-rose   { background: rgba(224,112,112,0.1); color: var(--rose); border: 1px solid rgba(224,112,112,0.2); }
+.b-lav    { background: rgba(157,143,232,0.1); color: var(--lavender); border: 1px solid rgba(157,143,232,0.2); }
+.b-amber  { background: rgba(232,168,60,0.1); color: var(--amber); border: 1px solid rgba(232,168,60,0.2); }
+.b-dim    { background: var(--glass); color: var(--ivory-fade); border: 1px solid var(--edge); }
+
+/* ── TABLE ── */
+.table-wrap { overflow: hidden; border-radius: var(--r-md); border: 1px solid var(--edge); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  background: var(--ink4);
+  padding: 10px 16px;
+  text-align: left;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 500;
+  border-bottom: 1px solid var(--edge-gold);
+}
+td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--edge);
+  color: var(--ivory);
+  vertical-align: top;
+  line-height: 1.5;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--glass); }
+.td-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--gold);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.td-muted { color: var(--ivory-dim); font-size: 12px; }
+.td-hi { color: var(--ivory); font-weight: 600; }
+
+/* ── KPI ── */
+.kpi {
+  background: var(--ink3);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-md);
+  padding: 20px 18px;
+  transition: all 0.25s;
+  text-align: center;
+}
+
+.kpi:hover { border-color: var(--edge-gold); transform: translateY(-3px); }
+
+.kpi-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.kpi-label { font-size: 11px; color: var(--ivory-dim); letter-spacing: 0.05em; }
+
+/* ── WEEK BLOCK ── */
+.week-block {
+  background: var(--ink3);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-md);
+  padding: 20px 22px;
+  margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+
+.week-block:hover { border-color: var(--edge-gold); }
+
+.wb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.wb-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold-hi);
+}
+
+.wb-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--gold);
+  background: var(--gold-glass);
+  border: 1px solid var(--gold-edge);
+  padding: 4px 10px;
+  border-radius: 99px;
+  letter-spacing: 0.1em;
+}
+
+.topic-list { display: flex; flex-direction: column; gap: 5px; }
+
+.topic-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--ivory-dim);
+  padding: 5px 8px;
+  border-radius: 6px;
+  transition: all 0.15s;
+  line-height: 1.4;
+}
+
+.topic-item:hover { background: var(--glass); color: var(--ivory); }
+
+.topic-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+  margin-top: 5px;
+  opacity: 0.7;
+}
+
+.wb-progress {
+  height: 3px;
+  background: var(--ink5);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 16px;
+}
+
+.wb-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-lo), var(--gold-hi));
+  border-radius: 99px;
+  animation: growBar 1.2s ease both;
+}
+
+@keyframes growBar { from { width: 0 !important; } }
+
+/* ── RULE CARDS ── */
+.rule-card {
+  background: var(--ink3);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-md);
+  padding: 18px;
+  transition: all 0.2s;
+}
+
+.rule-card:hover { border-color: var(--edge-gold); transform: translateY(-2px); }
+
+.rule-icon { font-size: 20px; margin-bottom: 8px; display: block; }
+.rule-title { font-size: 13px; font-weight: 700; color: var(--ivory); margin-bottom: 5px; }
+.rule-desc { font-size: 12px; color: var(--ivory-dim); line-height: 1.55; }
+
+/* ── QUOTE ── */
+.quote {
+  border-left: 2px solid var(--gold);
+  padding: 14px 18px;
+  background: var(--gold-glass);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  margin-bottom: 10px;
+  transition: background 0.2s;
+}
+
+.quote:hover { background: rgba(191,164,106,0.1); }
+
+.quote-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-style: italic;
+  color: var(--ivory);
+  line-height: 1.7;
+}
+
+.quote-by {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--gold);
+  margin-top: 6px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* ── CHECKLIST ── */
+.checklist { display: flex; flex-direction: column; gap: 7px; }
+
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 14px;
+  border-radius: var(--r-sm);
+  background: var(--ink3);
+  border: 1px solid var(--edge);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.check-item:hover { background: var(--ink4); }
+
+.check-box {
+  width: 17px; height: 17px;
+  border: 1.5px solid var(--edge-gold);
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  background: var(--ink5);
+  position: relative;
+  transition: all 0.2s;
+}
+
+.check-item.checked .check-box {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.check-item.checked .check-box::after {
+  content: '✓';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.check-text { font-size: 12.5px; color: var(--ivory); line-height: 1.4; }
+.check-item.checked .check-text { color: var(--ivory-fade); text-decoration: line-through; }
+
+/* ── INFO BOX ── */
+.info-box {
+  background: var(--ink3);
+  border: 1px solid var(--edge-gold);
+  border-radius: var(--r-md);
+  padding: 16px 20px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.ib-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+.ib-text { font-size: 13px; color: var(--ivory-dim); line-height: 1.65; }
+.ib-text strong { color: var(--ivory); font-weight: 600; }
+
+/* ── DIVIDER ── */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--edge), transparent);
+  margin: 36px 0;
+}
+
+/* ── TRACKER ── */
+.tracker-grid { display: grid; grid-template-columns: repeat(10,1fr); gap: 7px; }
+
+.t-day {
+  aspect-ratio: 1;
+  border-radius: 7px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  transition: all 0.2s;
+  border: 1px solid var(--edge);
+  background: var(--ink5);
+  color: var(--ivory-fade);
+  user-select: none;
+}
+
+.t-day:hover { border-color: var(--gold-edge); color: var(--gold); transform: scale(1.08); }
+.t-day.done { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+.t-day.rest { background: rgba(62,201,167,0.08); border-color: rgba(62,201,167,0.25); color: var(--teal); }
+.t-day.rest.done { background: var(--teal); border-color: var(--teal); color: var(--ink); }
+.t-day-sub { font-size: 7px; margin-top: 2px; opacity: 0.6; letter-spacing: 0.05em; }
+
+/* ── MICRO PROJECT CARDS ── */
+.project-card {
+  background: var(--ink3);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-md);
+  padding: 20px;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.project-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transition: transform 0.3s;
+  transform-origin: left;
+}
+
+.project-card:hover { border-color: var(--edge-gold); transform: translateY(-3px); }
+.project-card:hover::after { transform: scaleX(1); }
+
+.pc-phase {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  color: var(--blue);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.pc-title { font-size: 14px; font-weight: 700; color: var(--ivory); margin-bottom: 5px; }
+.pc-desc { font-size: 11.5px; color: var(--ivory-dim); line-height: 1.55; margin-bottom: 10px; }
+.pc-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.pc-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: rgba(91,156,246,0.1);
+  color: var(--blue);
+  border: 1px solid rgba(91,156,246,0.18);
+}
+
+/* ── LEGEND ── */
+.legend { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ivory-dim); }
+.legend-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+
+/* ── MANIFESTO ── */
+.manifesto {
+  background: linear-gradient(135deg, var(--ink2) 0%, rgba(191,164,106,0.06) 100%);
+  border: 1px solid var(--gold-edge);
+  border-radius: var(--r-xl);
+  padding: 48px 40px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.manifesto::before {
+  content: '';
+  position: absolute;
+  top: -60px; left: 50%; transform: translateX(-50%);
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(191,164,106,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.manifesto-lines {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(15px,2.5vw,20px);
+  line-height: 2;
+  color: var(--ivory-dim);
+}
+
+.manifesto-lines strong {
+  color: var(--gold-hi);
+  font-weight: 600;
+}
+
+/* ── HERO HEADER ── */
+.hero {
+  padding: 48px 0 40px;
+  margin-bottom: 40px;
+  border-bottom: 1px solid var(--edge);
+}
+
+.hero-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: block;
+}
+
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(36px,6vw,64px);
+  font-weight: 700;
+  line-height: 1.0;
+  color: var(--ivory);
+  margin-bottom: 10px;
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.hero-sub {
+  font-size: 15px;
+  color: var(--ivory-dim);
+  font-weight: 400;
+  max-width: 520px;
+  line-height: 1.6;
+}
+
+/* ── PROGRESS RING ── */
+.ring-wrap { display: flex; align-items: center; gap: 20px; padding: 16px 0; }
+.ring-info-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--ivory-fade); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 3px; }
+.ring-info-val { font-size: 22px; font-weight: 700; color: var(--ivory); font-family: 'Cormorant Garamond', serif; }
+
+/* ── PRIORITY PILL ── */
+.prio-1 { color: var(--gold); }
+.prio-2 { color: var(--blue); }
+.prio-3 { color: var(--teal); }
+
+/* ── BURNOUT TABLE ── */
+.burnout-signal { color: var(--rose); font-weight: 600; font-size: 12.5px; }
+.burnout-action { color: var(--teal); font-size: 12px; }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   RESPONSIVE — MOBILE PATCH
+   Altera APENAS layout/espaçamento mobile.
+   Não toca em cores, tipografia ou design.
+═══════════════════════════════════════════ */
+
+/* ── 900px: tablet landscape / small desktop ── */
+@media (max-width: 900px) {
+  /* Layout raiz */
+  .app { grid-template-columns: 1fr; }
+  .main { margin-left: 0; }
+
+  /* Sidebar vira bottom-nav scrollável */
+  .sidebar {
+    display: block;
+    position: fixed;
+    top: auto;
+    bottom: 0; left: 0; right: 0;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-top: 1px solid var(--edge);
+    padding: 0;
+    z-index: 200;
+    background: rgba(10,10,16,0.97);
+    backdrop-filter: blur(20px);
+  }
+
+  /* Esconde brand e footer da sidebar no mobile */
+  .sidebar-brand,
+  .sidebar-footer,
+  .nav-group-label { display: none; }
+
+  /* Nav vira barra horizontal scrollável */
+  .sidebar-nav {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 4px;
+    padding: 8px 12px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .sidebar-nav::-webkit-scrollbar { display: none; }
+
+  .nav-item {
+    flex-shrink: 0;
+    padding: 7px 12px;
+    font-size: 11px;
+    border-radius: 99px;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .nav-icon { font-size: 13px; }
+
+  /* Topbar compacta */
+  .topbar {
+    padding: 10px 16px;
+    position: sticky;
+    top: 0;
+  }
+
+  .topbar-title { font-size: 15px; }
+
+  /* Esconde badges extras no topbar */
+  .topbar-meta .topbar-badge:not(:first-child) { display: none; }
+
+  /* Content com padding bottom para a bottom-nav */
+  .content {
+    padding: 20px 16px 90px;
+    max-width: 100%;
+  }
+
+  /* Hero menor */
+  .hero { padding: 28px 0 24px; margin-bottom: 24px; }
+  .hero-title { font-size: clamp(28px, 8vw, 48px); }
+  .hero-sub { font-size: 13px; }
+  .hero-label { font-size: 9px; }
+
+  /* Grids todos em 1 coluna */
+  .grid-2,
+  .grid-3,
+  .grid-4 { grid-template-columns: 1fr; gap: 10px; }
+
+  /* KPIs em 2x2 */
+  .grid-4 { grid-template-columns: 1fr 1fr; }
+
+  /* Cards */
+  .card-p { padding: 16px; }
+
+  /* Section header compacto */
+  .sec-title { font-size: 20px; }
+  .sec-header { margin-bottom: 16px; gap: 10px; }
+
+  /* Tracker menor no mobile */
+  .tracker-grid { grid-template-columns: repeat(6, 1fr); gap: 5px; }
+  .t-day { font-size: 10px; border-radius: 6px; }
+  .t-day-sub { font-size: 6px; }
+
+  /* Manifesto */
+  .manifesto { padding: 28px 20px; }
+  .manifesto-lines { font-size: 14px; line-height: 1.9; }
+
+  /* Info box */
+  .info-box { padding: 12px 14px; gap: 10px; }
+  .ib-icon { font-size: 18px; }
+  .ib-text { font-size: 12px; }
+
+  /* Week blocks */
+  .wb-title { font-size: 15px; }
+  .wb-header { flex-wrap: wrap; gap: 8px; }
+
+  /* Print btn sobe acima da bottom-nav */
+  .print-btn { bottom: 72px; right: 16px; padding: 10px 16px; font-size: 11px; }
+}
+
+/* ── 600px: mobile portrait ── */
+@media (max-width: 600px) {
+  /* Time rows: stack em 2 linhas no mobile */
+  .time-row {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 4px 8px;
+    padding: 10px 12px;
+    border-left-width: 3px;
+  }
+
+  .t-time {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 10px;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .time-row > div:nth-child(2) {
+    grid-column: 1 / 3;
+    grid-row: 2;
+  }
+
+  .t-badge {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: start;
+    font-size: 8px;
+    padding: 2px 6px;
+  }
+
+  .t-act { font-size: 12.5px; }
+  .t-sub { font-size: 11px; margin-top: 2px; }
+
+  /* Time stack gap menor */
+  .time-stack { gap: 4px; }
+
+  /* KPIs em 2 colunas */
+  .grid-4 { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .kpi { padding: 14px 10px; }
+  .kpi-num { font-size: 28px; }
+  .kpi-label { font-size: 10px; }
+
+  /* Tabelas com scroll horizontal */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--r-md);
+  }
+
+  table { min-width: 520px; }
+
+  th { font-size: 8px; padding: 8px 12px; letter-spacing: 0.12em; }
+  td { font-size: 11.5px; padding: 8px 12px; }
+
+  /* Rule cards em 1 col */
+  .rules-grid { grid-template-columns: 1fr; }
+
+  /* Project cards em 1 col */
+  .grid-2 { grid-template-columns: 1fr; }
+
+  /* Checklist */
+  .check-item { padding: 8px 10px; gap: 8px; }
+  .check-text { font-size: 12px; }
+  .check-box { width: 16px; height: 16px; }
+
+  /* Nav items ainda mais compactos */
+  .nav-item { padding: 6px 10px; font-size: 10px; gap: 4px; }
+  .nav-icon { font-size: 12px; width: 14px; }
+
+  /* Topbar muito compacto */
+  .topbar { padding: 8px 14px; gap: 8px; }
+  .topbar-title { font-size: 13px; }
+  .topbar-badge { font-size: 8px; padding: 3px 7px; }
+
+  /* Section headers */
+  .sec-title { font-size: 18px; }
+  .sec-index { font-size: 9px; padding: 3px 6px; }
+
+  /* Hero */
+  .hero { padding: 20px 0 18px; margin-bottom: 20px; }
+  .hero-title { font-size: clamp(24px, 9vw, 36px); }
+
+  /* Content padding */
+  .content { padding: 16px 12px 90px; }
+
+  /* Info box */
+  .info-box { flex-direction: row; padding: 12px; }
+
+  /* Week block */
+  .week-block { padding: 14px 14px; }
+  .wb-title { font-size: 14px; }
+  .wb-tag { font-size: 8px; padding: 3px 8px; }
+  .topic-item { font-size: 12px; }
+
+  /* Quotes */
+  .quote { padding: 12px 14px; }
+  .quote-text { font-size: 14px; }
+
+  /* Tracker 5 colunas no mobile small */
+  .tracker-grid { grid-template-columns: repeat(5, 1fr); gap: 4px; }
+
+  /* Divider */
+  .divider { margin: 24px 0; }
+
+  /* Manifesto */
+  .manifesto { padding: 24px 16px; border-radius: var(--r-lg); }
+  .manifesto-lines { font-size: 13.5px; line-height: 1.85; }
+
+  /* Margem bottom helpers */
+  .mb-lg { margin-bottom: 20px; }
+  .mb-md { margin-bottom: 14px; }
+}
+
+@media print {
+  .sidebar, .topbar, .print-btn, body::after { display: none !important; }
+  .main { margin-left: 0; }
+  .page { display: block !important; margin-bottom: 60px; }
+  body { background: #fff; color: #000; }
+}
+
+/* ── PRINT BTN ── */
+.print-btn {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  background: var(--gold);
+  color: var(--ink);
+  border: none;
+  padding: 12px 22px;
+  border-radius: 99px;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 200;
+  box-shadow: 0 4px 24px rgba(191,164,106,0.3);
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+
+.print-btn:hover { background: var(--gold-hi); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(191,164,106,0.4); }
+
+/* ── SPACING ── */
+.mb-sm { margin-bottom: 12px; }
+.mb-md { margin-bottom: 20px; }
+.mb-lg { margin-bottom: 32px; }
+
+/* ── EDITABLE CELLS ── */
+td[contenteditable="true"] {
+  cursor: text;
+  border-radius: 4px;
+  transition: background 0.2s, outline 0.2s;
+}
+td[contenteditable="true"]:focus {
+  background: var(--ink5);
+  outline: 1px solid var(--gold-edge);
+  color: var(--ivory);
+}
+td[contenteditable="true"]:hover {
+  background: var(--ink4);
+}
+
+/* ── MANIFESTO TEXT ── */
+.manifesto-lines em {
+  font-style: italic;
+  color: var(--gold-hi);
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <span class="brand-mono">EPS · v2.0</span>
+    <div class="brand-name">Executive<br><span>Performance</span><br>System</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <span class="nav-group-label">Sistema</span>
+    <a class="nav-item active" onclick="showPage('dashboard')">
+      <span class="nav-icon">⬡</span> Dashboard
+    </a>
+
+    <span class="nav-group-label">Rotinas</span>
+    <a class="nav-item" onclick="showPage('segunda')">
+      <span class="nav-icon">🌑</span> Segunda
+    </a>
+    <a class="nav-item" onclick="showPage('ter-sex')">
+      <span class="nav-icon">⚡</span> Ter — Sex
+    </a>
+    <a class="nav-item" onclick="showPage('sabado')">
+      <span class="nav-icon">🔶</span> Sábado
+    </a>
+    <a class="nav-item" onclick="showPage('domingo')">
+      <span class="nav-icon">☀</span> Domingo
+    </a>
+
+    <span class="nav-group-label">Estratégia</span>
+    <a class="nav-item" onclick="showPage('ancord')">
+      <span class="nav-icon">📊</span> Plano ANCORD
+    </a>
+    <a class="nav-item" onclick="showPage('retencao')">
+      <span class="nav-icon">🧠</span> Retenção
+    </a>
+    <a class="nav-item" onclick="showPage('energia')">
+      <span class="nav-icon">⚡</span> Energia
+    </a>
+    <a class="nav-item" onclick="showPage('programacao')">
+      <span class="nav-icon">💻</span> Programação
+    </a>
+    <a class="nav-item" onclick="showPage('academico')">
+      <span class="nav-icon">🎓</span> Acadêmico
+    </a>
+
+    <span class="nav-group-label">Disciplina</span>
+    <a class="nav-item" onclick="showPage('tracker')">
+      <span class="nav-icon">📅</span> Tracker 30D
+    </a>
+    <a class="nav-item" onclick="showPage('checklist')">
+      <span class="nav-icon">✓</span> Checklist
+    </a>
+    <a class="nav-item" onclick="showPage('prova')">
+      <span class="nav-icon">🏆</span> Dia da Prova
+    </a>
+
+    <span class="nav-group-label">Visão</span>
+    <a class="nav-item" onclick="showPage('carreira')">
+      <span class="nav-icon">🚀</span> Carreira
+    </a>
+    <a class="nav-item" onclick="showPage('campo')">
+      <span class="nav-icon">📓</span> Notas de Campo
+    </a>
+    <a class="nav-item" onclick="showPage('manifesto')">
+      <span class="nav-icon">◆</span> Manifesto
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-stat">
+      <span class="sidebar-stat-label">Meta</span>
+      <span class="sidebar-stat-value">ANCORD</span>
+    </div>
+    <div class="sidebar-stat">
+      <span class="sidebar-stat-label">Prazo</span>
+      <span class="sidebar-stat-value">30 dias</span>
+    </div>
+    <div class="sidebar-stat">
+      <span class="sidebar-stat-label">Prioridade</span>
+      <span class="sidebar-stat-value">★★★</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<main class="main">
+
+  <div class="topbar">
+    <span class="topbar-title" id="topbar-title">Dashboard</span>
+    <div class="topbar-meta">
+      <span class="topbar-badge tb-gold">ANCORD Focus</span>
+      <span class="topbar-badge tb-teal">30 dias</span>
+      <span class="topbar-badge tb-blue">Alta Performance</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- ══════════════════════════════════
+       PAGE: DASHBOARD
+  ══════════════════════════════════ -->
+  <div class="page active" id="page-dashboard">
+    <div class="hero">
+      <span class="hero-label">Executive Performance System · 2026 · ANCORD Edition</span>
+      <h1 class="hero-title">Seu sistema<br><em>operacional</em><br>pessoal.</h1>
+      <p class="hero-sub">30 dias estruturados para aprovação na ANCORD, crescimento técnico, acadêmico, físico e espiritual — sem burnout.</p>
+    </div>
+
+    <div class="grid-4 mb-lg">
+      <div class="kpi"><div class="kpi-num">30</div><div class="kpi-label">Dias de Foco</div></div>
+      <div class="kpi"><div class="kpi-num">1ª</div><div class="kpi-label">Meta: ANCORD</div></div>
+      <div class="kpi"><div class="kpi-num">7</div><div class="kpi-label">Pilares Ativos</div></div>
+      <div class="kpi"><div class="kpi-num">∞</div><div class="kpi-label">Potencial</div></div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">00</span>
+      <h2 class="sec-title">Missão & Visão de 30 Dias</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="info-box mb-md">
+      <span class="ib-icon">🎯</span>
+      <div class="ib-text">
+        <strong>Missão:</strong> Ser aprovado na ANCORD enquanto mantém constância física, evolução técnica (programação + ADS + Economia), vida espiritual ativa e energia sustentável para o trabalho diário. Este sistema foi construído para <strong>um ser humano real</strong> — não um robô de produtividade.
+      </div>
+    </div>
+
+    <div class="grid-3 mb-lg">
+      <div class="rule-card">
+        <span class="rule-icon">📊</span>
+        <div class="rule-title">ANCORD — Prioridade Máxima</div>
+        <div class="rule-desc">Todo o sistema gravita em torno da aprovação. Blocos de estudo protegidos, questões diárias, revisão espaçada. CEA pausada temporariamente.</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">⚡</span>
+        <div class="rule-title">Performance Sustentável</div>
+        <div class="rule-desc">Rotina desenhada para durar 30 dias sem colapso. Descanso estratégico, cochilo programado, sono respeitado ao máximo possível.</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">🏗️</span>
+        <div class="rule-title">Carreira de Longo Prazo</div>
+        <div class="rule-desc">ANCORD → CFP → assessoria + tech financeiro. Cada bloco de programação e estudo acadêmico está conectado a este destino.</div>
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">OS</span>
+      <h2 class="sec-title">Como Navegar Este Sistema</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Seção</th><th>Conteúdo</th><th>Frequência de Uso</th></tr></thead>
+        <tbody>
+          <tr><td class="td-label">Rotinas</td><td>Horários detalhados por dia da semana</td><td class="td-muted">Diário — referência</td></tr>
+          <tr><td class="td-label">Plano ANCORD</td><td>4 semanas, tópicos, carga e foco</td><td class="td-muted">Semanal — planejamento</td></tr>
+          <tr><td class="td-label">Retenção</td><td>Métodos ativos, revisão espaçada, questões</td><td class="td-muted">Diário — execução</td></tr>
+          <tr><td class="td-label">Energia</td><td>Sono, cafeína, pausas, anti-burnout</td><td class="td-muted">Sempre — prevenção</td></tr>
+          <tr><td class="td-label">Programação</td><td>Microprojetos financeiros, trilha 30D</td><td class="td-muted">Diário — 30 min</td></tr>
+          <tr><td class="td-label">Acadêmico</td><td>Sistema ADS + Economia sem prejudicar ANCORD</td><td class="td-muted">Diário — integrado</td></tr>
+          <tr><td class="td-label">Tracker 30D</td><td>Registro visual de consistência</td><td class="td-muted">Fim de cada dia</td></tr>
+          <tr><td class="td-label">Checklist</td><td>Rotina diária clicável</td><td class="td-muted">Manhã + noite</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE: SEGUNDA
+  ══════════════════════════════════ -->
+  <div class="page" id="page-segunda">
+    <div class="sec-header">
+      <span class="sec-index">01</span>
+      <h2 class="sec-title">Segunda-Feira — Dia de Avanço Total</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="info-box mb-md">
+      <span class="ib-icon">🌑</span>
+      <div class="ib-text">
+        <strong>Segunda é ouro.</strong> Sem trabalho, sem compromissos fixos de manhã. É o dia de maior volume de estudo da semana. Às 19h tem célula da igreja — isso é inegociável e bem-vindo. A tarde livre antes da célula pode ser usada para descanso cognitivo ou reforço leve.
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div> ANCORD</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div> Faculdades / Prog.</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div> Físico</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--lavender)"></div> Espiritual</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div> Igreja</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--ink6)"></div> Descanso</div>
+    </div>
+
+    <div class="card card-p mb-md">
+      <div class="time-stack">
+        <div class="time-row c-lav">
+          <div class="t-time">05:30 – 06:05</div>
+          <div><div class="t-act">🙏 Devocional + Oração</div><div class="t-sub">Leitura bíblica · silêncio · intenção do dia</div></div>
+          <span class="t-badge b-lav">Espiritual</span>
+        </div>
+        <div class="time-row c-teal">
+          <div class="t-time">06:10 – 07:30</div>
+          <div><div class="t-act">💪 Academia — Treino Completo</div><div class="t-sub">Sem pressa · foco na execução</div></div>
+          <span class="t-badge b-teal">Físico</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">07:30 – 08:10</div>
+          <div><div class="t-act">🚿 Higiene + Café da Manhã</div><div class="t-sub">Refeição completa · recarregar antes dos blocos</div></div>
+          <span class="t-badge b-dim">Ritual</span>
+        </div>
+        <div class="time-row c-gold">
+          <div class="t-time">08:10 – 10:10</div>
+          <div><div class="t-act">📊 Bloco ANCORD 1 — Conteúdo Novo</div><div class="t-sub">2h de foco profundo · celular no modo avião</div></div>
+          <span class="t-badge b-gold">ANCORD ★</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">10:10 – 10:25</div>
+          <div><div class="t-act">☕ Pausa Ativa</div><div class="t-sub">Caminhar · hidratação · sem telas cognitivas</div></div>
+          <span class="t-badge b-dim">Pausa</span>
+        </div>
+        <div class="time-row c-gold">
+          <div class="t-time">10:25 – 12:00</div>
+          <div><div class="t-act">📊 Bloco ANCORD 2 — Questões</div><div class="t-sub">Resolução ativa + revisão dos erros</div></div>
+          <span class="t-badge b-gold">ANCORD ★</span>
+        </div>
+        <div class="time-row c-blue">
+          <div class="t-time">12:00 – 12:30</div>
+          <div><div class="t-act">💻 Programação — 30 min</div><div class="t-sub">Projeto financeiro · inegociável</div></div>
+          <span class="t-badge b-blue">Code</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">12:30 – 13:30</div>
+          <div><div class="t-act">🍽️ Almoço + Descanso Real</div><div class="t-sub">Sem estudo · recuperação cognitiva</div></div>
+          <span class="t-badge b-dim">Recarga</span>
+        </div>
+        <div class="time-row c-blue">
+          <div class="t-time">13:30 – 15:00</div>
+          <div><div class="t-act">🎓 Faculdade — ADS ou Economia</div><div class="t-sub">Alternar semanalmente · sem sobrecarga</div></div>
+          <span class="t-badge b-blue">Facul.</span>
+        </div>
+        <div class="time-row c-gold">
+          <div class="t-time">15:00 – 16:30</div>
+          <div><div class="t-act">📊 Bloco ANCORD 3 — Revisão</div><div class="t-sub">Flashcards · mapas mentais · revisão espaçada</div></div>
+          <span class="t-badge b-gold">ANCORD ★</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">16:30 – 18:30</div>
+          <div><div class="t-act">🌅 Tempo Livre / Buffer</div><div class="t-sub">Descanso real · preparação para célula</div></div>
+          <span class="t-badge b-dim">Descanso</span>
+        </div>
+        <div class="time-row c-amber">
+          <div class="t-time">19:00 – 21:00</div>
+          <div><div class="t-act">⛪ Célula da Igreja</div><div class="t-sub">Presença total · comunidade · fé</div></div>
+          <span class="t-badge b-amber">Igreja</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">21:00 – 00:00</div>
+          <div><div class="t-act">🌙 Descompressão + Sono</div><div class="t-sub">Leitura leve · sem ANCORD após célula · dormir até 00h</div></div>
+          <span class="t-badge b-dim">Sono</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <span class="ib-icon">💡</span>
+      <div class="ib-text"><strong>Segunda é sua semana em miniatura.</strong> Com ~5h30 de estudo ANCORD + 30min code + 1h30 faculdade + academia + devocional + célula — esse é o dia com maior carga intelectual da semana. Proteja os blocos da manhã acima de tudo.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE: TER-SEX
+  ══════════════════════════════════ -->
+  <div class="page" id="page-ter-sex">
+    <div class="sec-header">
+      <span class="sec-index">02</span>
+      <h2 class="sec-title">Terça a Sexta — Dia de Trabalho</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="info-box mb-md">
+      <span class="ib-icon">⚡</span>
+      <div class="ib-text">
+        <strong>O desafio real:</strong> trabalho das 14:30 às 00:00 com deslocamento. A janela produtiva é a manhã — aproximadamente 5h30 úteis antes de sair. Cada minuto dessa janela precisa ser intencionalmente alocado. <strong>A manhã é onde a aprovação acontece.</strong>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div> ANCORD</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div> Faculdades / Prog.</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div> Físico</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--lavender)"></div> Espiritual</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--rose)"></div> Trabalho</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--ink6)"></div> Descanso</div>
+    </div>
+
+    <div class="card card-p mb-md">
+      <div class="time-stack">
+        <div class="time-row c-lav">
+          <div class="t-time">05:30 – 06:00</div>
+          <div><div class="t-act">🙏 Devocional + Oração</div><div class="t-sub">Ancora o dia antes da correria</div></div>
+          <span class="t-badge b-lav">Espiritual</span>
+        </div>
+        <div class="time-row c-teal">
+          <div class="t-time">06:00 – 07:15</div>
+          <div><div class="t-act">💪 Academia</div><div class="t-sub">75 min · treino eficiente · sem enrolação</div></div>
+          <span class="t-badge b-teal">Físico</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">07:15 – 07:50</div>
+          <div><div class="t-act">🚿 Higiene + Café da Manhã</div><div class="t-sub">Refeição completa · proteína · hidratação</div></div>
+          <span class="t-badge b-dim">Ritual</span>
+        </div>
+        <div class="time-row c-gold">
+          <div class="t-time">07:50 – 09:50</div>
+          <div><div class="t-act">📊 Bloco ANCORD 1 — Conteúdo</div><div class="t-sub">2h · foco total · sem interrupções · maior energia</div></div>
+          <span class="t-badge b-gold">ANCORD ★</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">09:50 – 10:05</div>
+          <div><div class="t-act">☕ Pausa Ativa</div><div class="t-sub">15 min · caminhar · respirar · recarregar</div></div>
+          <span class="t-badge b-dim">Pausa</span>
+        </div>
+        <div class="time-row c-gold">
+          <div class="t-time">10:05 – 11:20</div>
+          <div><div class="t-act">📊 Bloco ANCORD 2 — Questões</div><div class="t-sub">1h15 · resolução + revisão de erros</div></div>
+          <span class="t-badge b-gold">ANCORD ★</span>
+        </div>
+        <div class="time-row c-blue">
+          <div class="t-time">11:20 – 11:50</div>
+          <div><div class="t-act">💻 Programação</div><div class="t-sub">30 min inegociáveis · projeto financeiro</div></div>
+          <span class="t-badge b-blue">Code</span>
+        </div>
+        <div class="time-row c-blue">
+          <div class="t-time">11:50 – 12:35</div>
+          <div><div class="t-act">🎓 Faculdade</div><div class="t-sub">45 min · ADS ou Economia · alternado</div></div>
+          <span class="t-badge b-blue">Facul.</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">12:35 – 13:35</div>
+          <div><div class="t-act">🍽️ Almoço + Cochilo Estratégico</div><div class="t-sub">Comer · depois 20 min de cochilo se possível</div></div>
+          <span class="t-badge b-dim">Recarga</span>
+        </div>
+        <div class="time-row c-rose">
+          <div class="t-time">13:35 – 14:10</div>
+          <div><div class="t-act">🗂️ Preparação para o Trabalho</div><div class="t-sub">Trocar, organizar, deslocamento</div></div>
+          <span class="t-badge b-rose">Transit.</span>
+        </div>
+        <div class="time-row c-rose">
+          <div class="t-time">14:30 – 00:00</div>
+          <div><div class="t-act">💼 Trabalho</div><div class="t-sub">Presença plena · sem culpa · é parte do plano</div></div>
+          <span class="t-badge b-rose">Trabalho</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">00:00 – 00:40</div>
+          <div><div class="t-act">🌙 Retorno + Protocolo Noturno</div><div class="t-sub">Sem telas intensas · higiene · sono</div></div>
+          <span class="t-badge b-dim">Sono</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="info-box" style="margin-bottom:0;">
+        <span class="ib-icon">⏱️</span>
+        <div class="ib-text">
+          <strong>Janela produtiva real:</strong> ~5h45 úteis antes do trabalho. Desse total: 3h15 ANCORD, 30min code, 45min faculdade — tudo dentro de blocos com pausas reais.
+        </div>
+      </div>
+      <div class="info-box" style="margin-bottom:0;">
+        <span class="ib-icon">😴</span>
+        <div class="ib-text">
+          <strong>Sono real:</strong> 00:40 → 05:30 = ~4h50 úteis. O cochilo de 20 min após o almoço é estratégico — compensa parte do déficit e melhora a tarde.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE: SÁBADO
+  ══════════════════════════════════ -->
+  <div class="page" id="page-sabado">
+    <div class="sec-header">
+      <span class="sec-index">03</span>
+      <h2 class="sec-title">Sábado — Produtivo + Recarga</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="info-box mb-md">
+      <span class="ib-icon">🔶</span>
+      <div class="ib-text">
+        <strong>Sábado tem dois momentos fixos:</strong> Treinamento de Líderes das 13:30 às 16:00. A manhã é para estudo e treino. Após o treinamento, a noite é de descanso e recuperação — você vai precisar para a semana seguinte.
+      </div>
+    </div>
+
+    <div class="card card-p">
+      <div class="time-stack">
+        <div class="time-row c-lav">
+          <div class="t-time">06:30 – 07:10</div>
+          <div><div class="t-act">🙏 Devocional Estendido</div><div class="t-sub">Mais fundo que nos dias úteis · gratidão da semana</div></div>
+          <span class="t-badge b-lav">Espiritual</span>
+        </div>
+        <div class="time-row c-teal">
+          <div class="t-time">07:10 – 08:30</div>
+          <div><div class="t-act">💪 Treino — Modalidade Livre</div><div class="t-sub">Academia ou atividade ao ar livre · sem pressão de tempo</div></div>
+          <span class="t-badge b-teal">Físico</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">08:30 – 09:00</div>
+          <div><div class="t-act">☕ Café com Calma</div><div class="t-sub">Ritual · sem olhar o relógio</div></div>
+          <span class="t-badge b-dim">Ritual</span>
+        </div>
+        <div class="time-row c-gold">
+          <div class="t-time">09:00 – 11:30</div>
+          <div><div class="t-act">📊 Super Bloco ANCORD — 2h30</div><div class="t-sub">Maior bloco da semana · conteúdo + questões + revisão</div></div>
+          <span class="t-badge b-gold">ANCORD ★★</span>
+        </div>
+        <div class="time-row c-blue">
+          <div class="t-time">11:30 – 12:00</div>
+          <div><div class="t-act">💻 Programação</div><div class="t-sub">30 min · semana entregou algo novo?</div></div>
+          <span class="t-badge b-blue">Code</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">12:00 – 13:20</div>
+          <div><div class="t-act">🍽️ Almoço Tranquilo</div><div class="t-sub">Família · amigos · presença real</div></div>
+          <span class="t-badge b-dim">Família</span>
+        </div>
+        <div class="time-row c-amber">
+          <div class="t-time">13:30 – 16:00</div>
+          <div><div class="t-act">⛪ Treinamento de Líderes</div><div class="t-sub">Liderança · comunidade · desenvolvimento espiritual</div></div>
+          <span class="t-badge b-amber">Igreja</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">16:00 – 23:00</div>
+          <div><div class="t-act">🌟 Tarde & Noite Livres</div><div class="t-sub">Descanso genuíno · lazer · social · sem culpa</div></div>
+          <span class="t-badge b-dim">Liberdade</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">23:00 – 06:30</div>
+          <div><div class="t-act">😴 Sono Mais Longo</div><div class="t-sub">~7h30 · maior noite da semana · recuperação</div></div>
+          <span class="t-badge b-dim">Sono ★</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE: DOMINGO
+  ══════════════════════════════════ -->
+  <div class="page" id="page-domingo">
+    <div class="sec-header">
+      <span class="sec-index">04</span>
+      <h2 class="sec-title">Domingo — Fé, Revisão & Planejamento</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="info-box mb-md">
+      <span class="ib-icon">☀</span>
+      <div class="ib-text">
+        <strong>Domingo tem dois momentos fixos:</strong> Treinamento de Líderes das 13:30 às 16:00 e Culto das 18:00 às 20:30. A manhã é para revisão ANCORD e planejamento da semana. A noite é fé e descompressão total.
+      </div>
+    </div>
+
+    <div class="card card-p">
+      <div class="time-stack">
+        <div class="time-row c-lav">
+          <div class="t-time">07:00 – 08:00</div>
+          <div><div class="t-act">🙏 Devoção Profunda</div><div class="t-sub">Oração longa · louvor · gratidão · estudo bíblico</div></div>
+          <span class="t-badge b-lav">Espiritual ★</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">08:00 – 09:00</div>
+          <div><div class="t-act">🥞 Café da Manhã com Calma</div><div class="t-sub">Sem pressa · início tranquilo de domingo</div></div>
+          <span class="t-badge b-dim">Ritual</span>
+        </div>
+        <div class="time-row c-gold">
+          <div class="t-time">09:00 – 11:00</div>
+          <div><div class="t-act">📊 Simulado ANCORD — Domingo</div><div class="t-sub">Prova simulada cronometrada · condições reais</div></div>
+          <span class="t-badge b-gold">Simulado</span>
+        </div>
+        <div class="time-row c-blue">
+          <div class="t-time">11:00 – 12:00</div>
+          <div><div class="t-act">📋 Planejamento Semanal</div><div class="t-sub">Próxima semana · prioridades · revisão de erros do simulado</div></div>
+          <span class="t-badge b-blue">Planej.</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">12:00 – 13:20</div>
+          <div><div class="t-act">🍽️ Almoço com Família</div><div class="t-sub">Presença · desconexão · recarga humana</div></div>
+          <span class="t-badge b-dim">Família</span>
+        </div>
+        <div class="time-row c-amber">
+          <div class="t-time">13:30 – 16:00</div>
+          <div><div class="t-act">⛪ Treinamento de Líderes</div><div class="t-sub">Compromisso fixo · liderança · comunidade</div></div>
+          <span class="t-badge b-amber">Igreja</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">16:00 – 17:45</div>
+          <div><div class="t-act">🌅 Tempo Livre</div><div class="t-sub">Descanso · passeio · qualquer coisa que revigore</div></div>
+          <span class="t-badge b-dim">Livre</span>
+        </div>
+        <div class="time-row c-amber">
+          <div class="t-time">18:00 – 20:30</div>
+          <div><div class="t-act">⛪ Culto</div><div class="t-sub">Fé em prática · comunidade · propósito maior</div></div>
+          <span class="t-badge b-amber">Culto</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">20:30 – 23:30</div>
+          <div><div class="t-act">🌙 Noite de Transição</div><div class="t-sub">Leitura · descompressão · preparar mente para segunda</div></div>
+          <span class="t-badge b-dim">Transição</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE: PLANO ANCORD
+  ══════════════════════════════════ -->
+  <div class="page" id="page-ancord">
+    <div class="sec-header">
+      <span class="sec-index">05</span>
+      <h2 class="sec-title">Plano ANCORD — 30 Dias</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="info-box mb-md">
+      <span class="ib-icon">📊</span>
+      <div class="ib-text">
+        Quatro fases progressivas: <strong>Base → Aprofundamento → Consolidação → Blindagem.</strong> Cada semana tem um objetivo claro, carga definida e não tenta cobrir tudo ao mesmo tempo. Questões crescem progressivamente: 20 → 30 → 40 → Simulados completos.
+      </div>
+    </div>
+
+    <div class="grid-4 mb-lg">
+      <div class="kpi"><div class="kpi-num">~21h</div><div class="kpi-label">Estudo/semana</div></div>
+      <div class="kpi"><div class="kpi-num">4</div><div class="kpi-label">Fases</div></div>
+      <div class="kpi"><div class="kpi-num">4</div><div class="kpi-label">Simulados</div></div>
+      <div class="kpi"><div class="kpi-num">700+</div><div class="kpi-label">Questões/mês</div></div>
+    </div>
+
+    <div class="week-block">
+      <div class="wb-header">
+        <span class="wb-title">📘 Semana 1 — Base & Fundamentos</span>
+        <span class="wb-tag">Dias 1 – 7 · 20 questões/dia</span>
+      </div>
+      <div class="topic-list">
+        <div class="topic-item"><div class="topic-dot"></div>Sistema Financeiro Nacional: estrutura, CMN, BACEN, CVM, SUSEP</div>
+        <div class="topic-item"><div class="topic-dot"></div>Mercado de capitais: conceitos, participantes, funcionamento</div>
+        <div class="topic-item"><div class="topic-dot"></div>Ações: tipos (ON/PN), direitos, dividendos, JCP, IPO, follow-on</div>
+        <div class="topic-item"><div class="topic-dot"></div>Renda Fixa: Tesouro Direto (LTN, NTN-B, LFT), CDB, LCI, LCA</div>
+        <div class="topic-item"><div class="topic-dot"></div>Debêntures e CRI/CRA: características e tributação</div>
+        <div class="topic-item"><div class="topic-dot"></div>🔁 Revisão ao fim de cada bloco · flashcards dos conceitos</div>
+      </div>
+      <div class="wb-progress"><div class="wb-fill" style="width:25%"></div></div>
+    </div>
+
+    <div class="week-block">
+      <div class="wb-header">
+        <span class="wb-title">📙 Semana 2 — Aprofundamento</span>
+        <span class="wb-tag">Dias 8 – 14 · 30 questões/dia</span>
+      </div>
+      <div class="topic-list">
+        <div class="topic-item"><div class="topic-dot"></div>Fundos de Investimento: tipos, regulação, taxas, tributação</div>
+        <div class="topic-item"><div class="topic-dot"></div>Derivativos: futuros, opções, swaps — visão geral e aplicação</div>
+        <div class="topic-item"><div class="topic-dot"></div>Análise Fundamentalista vs. Técnica: indicadores essenciais</div>
+        <div class="topic-item"><div class="topic-dot"></div>Compliance, Ética e Autorregulação: ANCORD, ANBIMA, CVM</div>
+        <div class="topic-item"><div class="topic-dot"></div>Tributação de investimentos: IR, IOF, come-cotas, isenções</div>
+        <div class="topic-item"><div class="topic-dot"></div>Planejamento Financeiro: conceitos, perfil do investidor, suitability</div>
+        <div class="topic-item"><div class="topic-dot"></div>🔁 Simulado temático ao fim da semana · revisão dos pontos fracos</div>
+      </div>
+      <div class="wb-progress"><div class="wb-fill" style="width:50%"></div></div>
+    </div>
+
+    <div class="week-block">
+      <div class="wb-header">
+        <span class="wb-title">📒 Semana 3 — Consolidação & Prática</span>
+        <span class="wb-tag">Dias 15 – 21 · 40 questões/dia</span>
+      </div>
+      <div class="topic-list">
+        <div class="topic-item"><div class="topic-dot"></div>Revisão completa de todos os temas da Semana 1 e 2</div>
+        <div class="topic-item"><div class="topic-dot"></div>Simulados temáticos por área (mínimo 1 por dia)</div>
+        <div class="topic-item"><div class="topic-dot"></div>Questões de provas ANCORD anteriores — máxima prioridade</div>
+        <div class="topic-item"><div class="topic-dot"></div>Mapas mentais de cada grande bloco temático</div>
+        <div class="topic-item"><div class="topic-dot"></div>Identificar os 3 temas com mais erros e reforçar</div>
+        <div class="topic-item"><div class="topic-dot"></div>Revisão espaçada via flashcards — 15 min diários</div>
+        <div class="topic-item"><div class="topic-dot"></div>🔁 Simulado completo no domingo com análise de desempenho</div>
+      </div>
+      <div class="wb-progress"><div class="wb-fill" style="width:75%"></div></div>
+    </div>
+
+    <div class="week-block">
+      <div class="wb-header">
+        <span class="wb-title">📕 Semana 4 — Blindagem Final</span>
+        <span class="wb-tag">Dias 22 – 30 · Simulados completos</span>
+      </div>
+      <div class="topic-list">
+        <div class="topic-item"><div class="topic-dot"></div>Simulados completos cronometrados todos os dias (ou 1 a cada 2 dias)</div>
+        <div class="topic-item"><div class="topic-dot"></div>Revisão APENAS dos erros dos simulados — sem conteúdo novo</div>
+        <div class="topic-item"><div class="topic-dot"></div>Flashcards diários de 20 min — conceitos que mais caem</div>
+        <div class="topic-item"><div class="topic-dot"></div>Nada de conteúdo novo — consolidação é a estratégia</div>
+        <div class="topic-item"><div class="topic-dot"></div>Dia 28: Descanso mental consciente (treino leve + espiritual)</div>
+        <div class="topic-item"><div class="topic-dot"></div>Dias 29–30: Revisão rápida de pontos críticos + mentalidade de prova</div>
+      </div>
+      <div class="wb-progress"><div class="wb-fill" style="width:100%"></div></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="sec-header">
+      <span class="sec-index">05b</span>
+      <h2 class="sec-title">Distribuição Diária de Estudo</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Dia</th><th>Carga ANCORD</th><th>Tipo</th><th>Questões</th></tr></thead>
+        <tbody>
+          <tr><td class="td-label prio-1">Segunda</td><td>~5h30</td><td class="td-muted">Conteúdo + Questões + Revisão</td><td class="td-hi">Sem. 1–2: 20 · Sem. 3: 40</td></tr>
+          <tr><td class="td-label prio-2">Ter–Sex</td><td>~3h15</td><td class="td-muted">Conteúdo + Questões</td><td class="td-hi">Proporcionais à semana</td></tr>
+          <tr><td class="td-label prio-2">Sábado</td><td>~2h30</td><td class="td-muted">Super Bloco + Revisão semanal</td><td class="td-hi">Reforço dos pontos fracos</td></tr>
+          <tr><td class="td-label prio-3">Domingo</td><td>~2h</td><td class="td-muted">Simulado cronometrado</td><td class="td-hi">Simulado completo</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE: RETENÇÃO
+  ══════════════════════════════════ -->
+  <div class="page" id="page-retencao">
+    <div class="sec-header">
+      <span class="sec-index">06</span>
+      <h2 class="sec-title">Estratégia de Retenção Cognitiva</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="info-box mb-md">
+      <span class="ib-icon">🧠</span>
+      <div class="ib-text"><strong>Aprendizagem ativa bate leitura passiva sempre.</strong> O sistema abaixo é baseado em evidências de neurociência: espaçamento, recuperação ativa, interleaving e sleep consolidation. Não é o que você estuda, é <em>como</em> você estuda.</div>
+    </div>
+
+    <div class="grid-3 mb-lg">
+      <div class="rule-card">
+        <span class="rule-icon">🔄</span>
+        <div class="rule-title">Revisão Espaçada</div>
+        <div class="rule-desc">Revisar o conteúdo em intervalos crescentes: revisar no mesmo dia, depois em 3 dias, depois em 7 dias. Use Anki ou caderno de flashcards. O espaçamento força o cérebro a "reaprender", o que consolida a memória de longo prazo.</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">📝</span>
+        <div class="rule-title">Recuperação Ativa</div>
+        <div class="rule-desc">Em vez de reler, feche o material e tente lembrar o que acabou de estudar. Escreva os pontos principais sem olhar. Esse processo de "lutar para lembrar" é o que cria conexões neurais duradouras.</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">🎯</span>
+        <div class="rule-title">Questões Primeiro</div>
+        <div class="rule-desc">A partir da Semana 2, faça questões ANTES de reler o material. O erro na questão cria um "espaço de problema" no cérebro que absorve a resposta correta com muito mais profundidade.</div>
+      </div>
+    </div>
+
+    <div class="table-wrap mb-lg">
+      <table>
+        <thead><tr><th>Método</th><th>Como Aplicar no ANCORD</th><th>Frequência</th><th>Impacto</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="td-label">Flashcards</td>
+            <td>Conceito de um lado, definição + exemplo do outro. Criar no Anki ou papel</td>
+            <td class="td-muted">15 min/dia</td>
+            <td class="td-hi" style="color:var(--teal)">★★★★★</td>
+          </tr>
+          <tr>
+            <td class="td-label">Mapa Mental</td>
+            <td>1 mapa por grande tema ao fim de cada semana. Conectar conceitos visualmente</td>
+            <td class="td-muted">1x/semana</td>
+            <td class="td-hi" style="color:var(--teal)">★★★★☆</td>
+          </tr>
+          <tr>
+            <td class="td-label">Questões</td>
+            <td>Resolver, anotar erros, revisar só os erros. Não refazer as corretas</td>
+            <td class="td-muted">Diário</td>
+            <td class="td-hi" style="color:var(--teal)">★★★★★</td>
+          </tr>
+          <tr>
+            <td class="td-label">Resumo Ativo</td>
+            <td>Após cada bloco, fechar o material e escrever os 5 pontos principais</td>
+            <td class="td-muted">Cada bloco</td>
+            <td class="td-hi" style="color:var(--teal)">★★★★☆</td>
+          </tr>
+          <tr>
+            <td class="td-label">Simulado</td>
+            <td>Condições reais: tempo, silêncio, sem consulta. Analisar erros logo depois</td>
+            <td class="td-muted">Domingo</td>
+            <td class="td-hi" style="color:var(--teal)">★★★★★</td>
+          </tr>
+          <tr>
+            <td class="td-label">Interleaving</td>
+            <td>Misturar temas diferentes no mesmo bloco de questões, não estudar 1 tema por semana inteira</td>
+            <td class="td-muted">Sem. 3–4</td>
+            <td class="td-hi" style="color:var(--teal)">★★★★☆</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">06b</span>
+      <h2 class="sec-title">Sistema de Questões — Protocolo</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="grid-3">
+      <div class="rule-card">
+        <span class="rule-icon">1️⃣</span>
+        <div class="rule-title">Resolver sem Pressão</div>
+        <div class="rule-desc">Resolva o bloco de questões sem olhar o gabarito. Marque as que ficou em dúvida com um "?". Marque as que errou com um "✗".</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">2️⃣</span>
+        <div class="rule-title">Revisar os Erros</div>
+        <div class="rule-desc">Leia a explicação de cada erro. Entenda o raciocínio — não apenas a resposta. Crie um flashcard do conceito que errou. Anote o tema.</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">3️⃣</span>
+        <div class="rule-title">Log de Temas Fracos</div>
+        <div class="rule-desc">Mantenha um registro simples: "Errei 4 de 5 questões de fundos de investimento". Isso guia onde reforçar na semana seguinte.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE: ENERGIA
+  ══════════════════════════════════ -->
+  <div class="page" id="page-energia">
+    <div class="sec-header">
+      <span class="sec-index">07</span>
+      <h2 class="sec-title">Estratégia de Energia & Anti-Burnout</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="info-box mb-md">
+      <span class="ib-icon">⚡</span>
+      <div class="ib-text"><strong>Energia é o ativo mais estratégico.</strong> Sem ela, a rotina colapsa — não por falta de vontade, mas por fisiologia. Este sistema protege sua capacidade cognitiva como se fosse capital que não pode ser dissipado.</div>
+    </div>
+
+    <div class="grid-2 mb-lg">
+      <div class="card card-p">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--teal);letter-spacing:0.2em;margin-bottom:14px;text-transform:uppercase;">✅ Protocolo de Sono</div>
+        <div class="checklist">
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Quarto escuro + frio (~18–20°C)</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Sem tela 20 min antes de dormir</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Cochilo 20 min após almoço (Ter–Sex)</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Acordar sempre às 05:30 (mesmo sábado se possível)</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Luz solar nos primeiros 30 min do dia</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Sábado e domingo: sono mais longo para compensar semana</div></div>
+        </div>
+      </div>
+      <div class="card card-p">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--rose);letter-spacing:0.2em;margin-bottom:14px;text-transform:uppercase;">🚫 Sabotadores de Energia</div>
+        <div class="checklist">
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Cafeína após 17h — interfere no sono mesmo que não sinta</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Celular na cama (modo avião obrigatório)</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Refeição pesada antes de dormir</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Estudar mais de 2h sem pausa ativa</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Pular refeições nos dias de maior carga</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Redes sociais nos primeiros 10 min do dia</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">07b</span>
+      <h2 class="sec-title">Sinais de Alerta & Respostas</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="table-wrap mb-lg">
+      <table>
+        <thead><tr><th>Sinal</th><th>O que significa</th><th>Ação imediata</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="burnout-signal">Não consegue se concentrar por mais de 20 min</td>
+            <td class="td-muted">Déficit de sono acumulado ou sobrecarga cognitiva</td>
+            <td class="burnout-action">Cochilo 20 min agora. Reduzir bloco para 45 min + pausa</td>
+          </tr>
+          <tr>
+            <td class="burnout-signal">Irritabilidade alta sem motivo</td>
+            <td class="td-muted">Sistema nervoso sobrecarregado</td>
+            <td class="burnout-action">Caminhada 15 min ao ar livre. Sem áudio. Só movimento</td>
+          </tr>
+          <tr>
+            <td class="burnout-signal">Perda completa de motivação</td>
+            <td class="td-muted">Normal (não é sinal para parar — é sinal para usar o sistema)</td>
+            <td class="burnout-action">Releia o Manifesto. Lembre: você não precisa de motivação, precisa do sistema</td>
+          </tr>
+          <tr>
+            <td class="burnout-signal">Ansiedade intensa antes de estudar</td>
+            <td class="td-muted">Perfeccionismo ou pressão autoposta excessiva</td>
+            <td class="burnout-action">Use Pomodoro: 25 min foco + 5 min pausa. Remova a meta de "estudar 2h"</td>
+          </tr>
+          <tr>
+            <td class="burnout-signal">2+ dias seguidos sem cumprir rotina</td>
+            <td class="td-muted">Sinal de reset necessário</td>
+            <td class="burnout-action">1 dia de descanso completo. Reinicia sem culpa no dia seguinte</td>
+          </tr>
+          <tr>
+            <td class="burnout-signal">Dor muscular excessiva</td>
+            <td class="td-muted">Recuperação insuficiente</td>
+            <td class="burnout-action">Substituir treino por caminhada ou alongamento. Sem sacrificar sono</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid-3">
+      <div class="rule-card">
+        <span class="rule-icon">☕</span>
+        <div class="rule-title">Protocolo de Cafeína</div>
+        <div class="rule-desc">Espere 90 min após acordar para tomar café (deixa a adenosina circular primeiro). Máximo 2 doses/dia. Corte às 17h. Não use como substituto de sono.</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">🔁</span>
+        <div class="rule-title">Regra da Pausa</div>
+        <div class="rule-desc">A cada 90 min de trabalho cognitivo, 10–15 min de pausa real (sem tela). O cérebro consolida o aprendido durante as pausas — elas não são tempo perdido.</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">🛡️</span>
+        <div class="rule-title">2 Dias de Emergência</div>
+        <div class="rule-desc">Você tem direito a 2 "dias de emergência" nos 30 dias — use para imprevistos reais. Não reserve para preguiça. Saiba que existem para dar segurança ao sistema.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE: PROGRAMAÇÃO
+  ══════════════════════════════════ -->
+  <div class="page" id="page-programacao">
+    <div class="sec-header">
+      <span class="sec-index">08</span>
+      <h2 class="sec-title">Programação — Trilha Financeira</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="info-box mb-lg">
+      <span class="ib-icon">💻</span>
+      <div class="ib-text">
+        <strong>Cada linha de código que você escreve precisa ter um endereço:</strong> o cruzamento entre tecnologia e mercado financeiro. ADS + Economia + programação financeira = perfil raro de mercado. Os projetos abaixo foram pensados para o seu destino — não para portfólio genérico.
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">08a</span>
+      <h2 class="sec-title">Regra dos 30 Minutos</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="grid-3 mb-lg">
+      <div class="rule-card">
+        <span class="rule-icon">🔥</span>
+        <div class="rule-title">Corrente Diária</div>
+        <div class="rule-desc">30 min inegociáveis todos os dias. Nem que seja 10 min se o dia explodir. O que importa é não quebrar a sequência. Consistência de 30 dias > maratona de 8h num sábado.</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">📌</span>
+        <div class="rule-title">Um Projeto de Cada Vez</div>
+        <div class="rule-desc">Escolha 1 microprojeto e leve até o fim. Iniciar 5 repositórios e completar 0 é o padrão que vai quebrar. Cada projeto completo é uma prova de execução.</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">🔗</span>
+        <div class="rule-title">Conectado ao Futuro</div>
+        <div class="rule-desc">Todo projeto deve ter relação com: assessoria, mercado financeiro, planejamento ou automação. Isso transforma estudo em diferencial de carreira.</div>
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">08b</span>
+      <h2 class="sec-title">Microprojetos — Trilha 30D</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="grid-2 mb-lg">
+      <div class="project-card">
+        <span class="pc-phase">Semana 1–2 · Fundação</span>
+        <div class="pc-title">Simulador de Rentabilidade</div>
+        <div class="pc-desc">Calculadora que compara CDB, LCI, LCA, Tesouro Direto e poupança com inputs de prazo, alíquota de IR e inflação. Interface limpa e exportável.</div>
+        <div class="pc-tags">
+          <span class="pc-tag">JavaScript</span><span class="pc-tag">HTML/CSS</span><span class="pc-tag">Renda Fixa</span>
+        </div>
+      </div>
+      <div class="project-card">
+        <span class="pc-phase">Semana 2–3 · Dados</span>
+        <div class="pc-title">Dashboard de Portfólio Pessoal</div>
+        <div class="pc-desc">Painel que consolida ativos, calcula alocação por classe, rentabilidade e exibe gráficos. Pode usar planilha CSV como fonte de dados.</div>
+        <div class="pc-tags">
+          <span class="pc-tag">Python</span><span class="pc-tag">Pandas</span><span class="pc-tag">Chart.js</span>
+        </div>
+      </div>
+      <div class="project-card">
+        <span class="pc-phase">Semana 3–4 · Automação</span>
+        <div class="pc-title">Alerta de Oportunidades</div>
+        <div class="pc-desc">Script que busca dados de taxa de juros, CDI e compara com taxas de CDBs disponíveis. Envia alerta quando encontrar oportunidade acima do benchmark.</div>
+        <div class="pc-tags">
+          <span class="pc-tag">Python</span><span class="pc-tag">API</span><span class="pc-tag">Automação</span>
+        </div>
+      </div>
+      <div class="project-card">
+        <span class="pc-phase">Pós-ANCORD · Assessoria</span>
+        <div class="pc-title">Mini CRM de Assessoria</div>
+        <div class="pc-desc">Sistema simples para gestão de clientes de assessoria: perfil de investidor, metas, rebalanceamento e histórico de contato. Base para futuro SaaS financeiro.</div>
+        <div class="pc-tags">
+          <span class="pc-tag">React</span><span class="pc-tag">Node.js</span><span class="pc-tag">SQLite</span>
+        </div>
+      </div>
+      <div class="project-card">
+        <span class="pc-phase">Futuro · IA + Finanças</span>
+        <div class="pc-title">Analisador de Perfil com IA</div>
+        <div class="pc-desc">Chatbot que aplica suitability via perguntas e retorna perfil de investidor com sugestão de alocação. Conecta seu background em ADS ao mercado financeiro.</div>
+        <div class="pc-tags">
+          <span class="pc-tag">Python</span><span class="pc-tag">LLM API</span><span class="pc-tag">CFP</span>
+        </div>
+      </div>
+      <div class="project-card">
+        <span class="pc-phase">Futuro · Planejamento</span>
+        <div class="pc-title">Planner Financeiro Pessoal</div>
+        <div class="pc-desc">Ferramenta de planejamento de independência financeira: aportes mensais, juros compostos, inflação, projeção de patrimônio com visualização de cenários.</div>
+        <div class="pc-tags">
+          <span class="pc-tag">React</span><span class="pc-tag">Recharts</span><span class="pc-tag">CFP</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">08c</span>
+      <h2 class="sec-title">Trilha de 30 Dias — Programação</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Semana</th><th>Foco</th><th>Entrega</th><th>Tempo/dia</th></tr></thead>
+        <tbody>
+          <tr><td class="td-label">SEM. 1</td><td>Retomar ou iniciar o Simulador de Rentabilidade</td><td class="td-muted">Versão funcional básica</td><td>30 min</td></tr>
+          <tr><td class="td-label">SEM. 2</td><td>Finalizar e publicar no GitHub</td><td class="td-muted">README + deploy simples</td><td>30 min</td></tr>
+          <tr><td class="td-label">SEM. 3</td><td>Iniciar Dashboard de Portfólio</td><td class="td-muted">Estrutura + 1 gráfico funcionando</td><td>30 min</td></tr>
+          <tr><td class="td-label">SEM. 4</td><td>Avançar o dashboard ou iniciar alerta de oportunidades</td><td class="td-muted">Algo publicado · algo progredindo</td><td>30 min</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE: ACADÊMICO
+  ══════════════════════════════════ -->
+  <div class="page" id="page-academico">
+    <div class="sec-header">
+      <span class="sec-index">09</span>
+      <h2 class="sec-title">Estratégia Acadêmica — ADS + Economia</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="info-box mb-lg">
+      <span class="ib-icon">🎓</span>
+      <div class="ib-text">
+        <strong>Regra principal:</strong> ANCORD não compete com as faculdades — as faculdades se encaixam em volta dela. Nos próximos 30 dias, ADS e Economia têm <em>presença mínima garantida</em>, não prioridade máxima. Isso é honesto e sustentável.
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">09a</span>
+      <h2 class="sec-title">Sistema de Prioridades Inteligente</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="table-wrap mb-lg">
+      <table>
+        <thead><tr><th>Hierarquia</th><th>Área</th><th>Carga diária</th><th>Estratégia</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="t-badge b-gold">★★★ PRIORIDADE 1</span></td>
+            <td class="td-hi">ANCORD</td>
+            <td>~3–5h (por dia)</td>
+            <td class="td-muted">Blocos protegidos, inegociáveis, primeiros do dia</td>
+          </tr>
+          <tr>
+            <td><span class="t-badge b-blue">★★ PRIORIDADE 2</span></td>
+            <td class="td-hi">Programação</td>
+            <td>30 min/dia</td>
+            <td class="td-muted">Logo após ANCORD, nunca pula mesmo que breve</td>
+          </tr>
+          <tr>
+            <td><span class="t-badge b-teal">★★ PRIORIDADE 3</span></td>
+            <td class="td-hi">Faculdades</td>
+            <td>45–60 min/dia</td>
+            <td class="td-muted">Foco em provas e entregas · evitar acúmulo</td>
+          </tr>
+          <tr>
+            <td><span class="t-badge b-teal">★★ PRIORIDADE 4</span></td>
+            <td class="td-hi">Físico + Espiritual</td>
+            <td>Diário fixo</td>
+            <td class="td-muted">Sustentação do sistema — nunca cortados</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid-2 mb-lg">
+      <div class="card card-p">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--blue);letter-spacing:0.2em;margin-bottom:14px;text-transform:uppercase;">💻 ADS — Foco nos 30 dias</div>
+        <div class="topic-list">
+          <div class="topic-item"><div class="topic-dot" style="background:var(--blue)"></div>Manter entregas obrigatórias em dia — sem atrasar</div>
+          <div class="topic-item"><div class="topic-dot" style="background:var(--blue)"></div>45 min/dia · Ter–Sex e Segunda</div>
+          <div class="topic-item"><div class="topic-dot" style="background:var(--blue)"></div>Priorizar disciplinas com provas próximas</div>
+          <div class="topic-item"><div class="topic-dot" style="background:var(--blue)"></div>Conectar projetos de ADS aos microprojetos financeiros</div>
+          <div class="topic-item"><div class="topic-dot" style="background:var(--blue)"></div>Alinhamento estratégico: ADS + Finanças = vantagem rara</div>
+        </div>
+      </div>
+      <div class="card card-p">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--amber);letter-spacing:0.2em;margin-bottom:14px;text-transform:uppercase;">📈 Economia — Sinergia com ANCORD</div>
+        <div class="topic-list">
+          <div class="topic-item"><div class="topic-dot" style="background:var(--amber)"></div>Economia e ANCORD têm sinergia — aproveite isso</div>
+          <div class="topic-item"><div class="topic-dot" style="background:var(--amber)"></div>Conteúdo de macro (juros, inflação, câmbio) reforça a ANCORD</div>
+          <div class="topic-item"><div class="topic-dot" style="background:var(--amber)"></div>Quando estudar Economia, conecte ao contexto financeiro atual</div>
+          <div class="topic-item"><div class="topic-dot" style="background:var(--amber)"></div>Não trate como estudo separado — trate como camadas do mesmo conhecimento</div>
+          <div class="topic-item"><div class="topic-dot" style="background:var(--amber)"></div>Visão macro = diferencial para CFP futuro</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">09b</span>
+      <h2 class="sec-title">Rotação Semanal — Faculdades</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Semana</th><th>Foco Faculdade</th><th>Justificativa</th></tr></thead>
+        <tbody>
+          <tr><td class="td-label">SEM. 1</td><td>ADS + Economia 50/50</td><td class="td-muted">Início: manter ritmo nas duas sem sobrecarga</td></tr>
+          <tr><td class="td-label">SEM. 2</td><td>Conforme prazo de entrega</td><td class="td-muted">Priorize a que tem prova ou entrega mais próxima</td></tr>
+          <tr><td class="td-label">SEM. 3</td><td>Mínimo necessário</td><td class="td-muted">Semana mais intensa de ANCORD — reduza faculdades se necessário</td></tr>
+          <tr><td class="td-label">SEM. 4</td><td>Manutenção apenas</td><td class="td-muted">Foco total na ANCORD. Faculdades em modo de sobrevivência</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE: TRACKER 30D
+  ══════════════════════════════════ -->
+  <div class="page" id="page-tracker">
+    <div class="sec-header">
+      <span class="sec-index">10</span>
+      <h2 class="sec-title">Tracker — 30 Dias de Consistência</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="info-box mb-lg">
+      <span class="ib-icon">🗓️</span>
+      <div class="ib-text">
+        Clique para marcar o dia como concluído. O poder visual de ver os dias preenchidos é um dos maiores combustíveis de consistência — não subestime isso. <strong>Dias em verde = descanso planejado (Sábado tarde + Domingo).</strong>
+      </div>
+    </div>
+
+    <div class="card card-p mb-lg">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:0.2em;margin-bottom:16px;text-transform:uppercase;">Dias de Consistência</div>
+      <div class="tracker-grid" id="tracker"></div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--ink6);border:1px solid var(--edge)"></div> Pendente</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div> Concluído</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(62,201,167,0.3);border:1px solid var(--teal)"></div> Descanso</div>
+      </div>
+      <div style="margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ivory-dim)">
+        Dias: <span id="t-done" style="color:var(--gold);font-weight:600">0</span>/30 &nbsp;·&nbsp; Streak atual: <span id="t-streak" style="color:var(--teal);font-weight:600">0</span> dias
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">10b</span>
+      <h2 class="sec-title">Resumo Semanal por Pilar</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Pilar</th><th>Segunda</th><th>Ter–Sex</th><th>Sábado</th><th>Domingo</th><th>Total/sem</th></tr></thead>
+        <tbody>
+          <tr style="background:var(--gold-glass);">
+            <td><strong style="color:var(--gold)">📊 ANCORD</strong></td>
+            <td>~5h30</td><td>~3h15 × 4</td><td>~2h30</td><td>~2h sim.</td>
+            <td><strong style="color:var(--gold)">~23h</strong></td>
+          </tr>
+          <tr><td><strong>💻 Programação</strong></td><td>30min</td><td>30min × 4</td><td>30min</td><td>—</td><td>~3h</td></tr>
+          <tr><td><strong>💪 Físico</strong></td><td>80min</td><td>75min × 4</td><td>80min</td><td>—</td><td>~7h</td></tr>
+          <tr><td><strong>🙏 Espiritual</strong></td><td>35min</td><td>30min × 4</td><td>40min</td><td>60min+</td><td>~4h</td></tr>
+          <tr><td><strong>🎓 Faculdades</strong></td><td>90min</td><td>45min × 4</td><td>—</td><td>—</td><td>~4h30</td></tr>
+          <tr><td><strong>💼 Trabalho</strong></td><td>—</td><td>9.5h × 4</td><td>—</td><td>—</td><td>~38h</td></tr>
+          <tr><td><strong style="color:var(--teal)">😴 Sono</strong></td><td>~7h</td><td>~4h50 × 4</td><td>~7h30</td><td>~7h</td><td><strong style="color:var(--teal)">~43h</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE: CHECKLIST
+  ══════════════════════════════════ -->
+  <div class="page" id="page-checklist">
+    <div class="sec-header">
+      <span class="sec-index">11</span>
+      <h2 class="sec-title">Checklist Diário & Semanal</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="grid-2 mb-lg">
+      <div class="card card-p">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:0.2em;margin-bottom:16px;text-transform:uppercase;">☀ Checklist Diário</div>
+        <div class="checklist" id="daily-check">
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">🙏 Devocional realizado antes de qualquer outra coisa</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">💪 Treino concluído ou substituído intencionalmente</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">📊 Bloco ANCORD 1 — conteúdo novo protegido</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">📊 Bloco ANCORD 2 — questões + revisão de erros</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">💻 30 min de programação sem interrupção</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">🎓 Conteúdo de faculdade avançado</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">📵 Celular fora das mãos durante blocos de estudo</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">💧 Hidratação adequada (mínimo 2L)</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">☕ Cafeína cortada antes das 17h</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">🌙 Protocolo noturno — sem tela 20 min antes de dormir</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">📝 1 frase: "Hoje avancei porque..."</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card card-p mb-md">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--blue);letter-spacing:0.2em;margin-bottom:16px;text-transform:uppercase;">📋 Checklist Semanal — Domingo</div>
+          <div class="checklist">
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Simulado ANCORD realizado e analisado</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Log de temas fracos atualizado</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Planejamento da próxima semana feito</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Flashcards novos criados dos erros da semana</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Mapa mental do tema da semana feito</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Energia e sono desta semana: sustentável?</div></div>
+          </div>
+        </div>
+
+        <div class="card card-p">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--lavender);letter-spacing:0.2em;margin-bottom:14px;text-transform:uppercase;">🧠 7 Perguntas do Domingo</div>
+          <div class="topic-list">
+            <div class="topic-item"><div class="topic-dot" style="background:var(--lavender)"></div>Qual foi meu maior avanço esta semana?</div>
+            <div class="topic-item"><div class="topic-dot" style="background:var(--lavender)"></div>Em qual tópico ANCORD ainda tenho dúvida?</div>
+            <div class="topic-item"><div class="topic-dot" style="background:var(--lavender)"></div>O que me desviou do plano esta semana?</div>
+            <div class="topic-item"><div class="topic-dot" style="background:var(--lavender)"></div>Minha energia e sono estão sustentáveis?</div>
+            <div class="topic-item"><div class="topic-dot" style="background:var(--lavender)"></div>Qual é minha prioridade #1 da próxima semana?</div>
+            <div class="topic-item"><div class="topic-dot" style="background:var(--lavender)"></div>Estou cuidando da minha vida espiritual?</div>
+            <div class="topic-item"><div class="topic-dot" style="background:var(--lavender)"></div>O que vou proteger de cortar da rotina esta semana?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">12</span>
+      <h2 class="sec-title">Regras de Disciplina</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="grid-3">
+      <div class="rule-card">
+        <span class="rule-icon">📵</span>
+        <div class="rule-title">Zero celular ao acordar</div>
+        <div class="rule-desc">Os primeiros 10 minutos são seus. Sem notificações. O que define o tom do dia não é a agenda — é o estado mental com que você começa.</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">⏰</span>
+        <div class="rule-title">Horários são sagrados</div>
+        <div class="rule-desc">Quando o bloco começa, começa. Sem negociar com você mesmo. A negociação interna é a porta de entrada para o colapso da rotina.</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">🔒</span>
+        <div class="rule-title">Constância &gt; Motivação</div>
+        <div class="rule-desc">Motivação oscila. Identidade não. "Eu sou alguém que estuda ANCORD todo dia" — esse frame é mais poderoso do que qualquer frase motivacional.</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">✍️</span>
+        <div class="rule-title">Erros são dados</div>
+        <div class="rule-desc">Cada questão errada é inteligência coletada sobre onde estudar mais. Errar questão não é falha — é o sistema funcionando.</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">🔄</span>
+        <div class="rule-title">Reset sem culpa</div>
+        <div class="rule-desc">Se um dia sair dos trilhos, o próximo começa zerado. Autopunição não estuda nada. O sistema é mais forte do que um dia ruim.</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">🎯</span>
+        <div class="rule-title">Uma coisa de cada vez</div>
+        <div class="rule-desc">No bloco ANCORD, só ANCORD. No treino, só treino. Multitarefa é o inimigo número 1 da aprendizagem profunda.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE: MANIFESTO
+  ══════════════════════════════════ -->
+  <div class="page" id="page-manifesto">
+    <div class="sec-header">
+      <span class="sec-index">13</span>
+      <h2 class="sec-title">Manifesto & Frases Âncora</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="manifesto mb-lg">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:0.3em;text-transform:uppercase;margin-bottom:28px;">Manifesto dos 30 Dias</div>
+      <div class="manifesto-lines">
+        Eu escolho acordar às 05:30 quando seria mais fácil dormir.<br>
+        Eu escolho o bloco de estudo quando teria razão para descansar.<br>
+        Eu escolho o código quando o celular está do lado.<br>
+        Eu escolho o devocional quando o tempo está curto.<br>
+        Eu escolho o treino quando o corpo pede preguiça.<br><br>
+        <strong>Não porque sou motivado.<br>
+        Porque sou disciplinado.<br>
+        Não porque é fácil.<br>
+        Porque eu decidi.</strong><br><br>
+        A aprovação na ANCORD não é o teto.<br>
+        É o piso.<br><br>
+        <strong>ANCORD → CFP → Assessoria → Tech Financeiro.<br>
+        Essa é a trajetória. Esses são os 30 dias que a começam.</strong>
+      </div>
+      <div style="height:1px;background:var(--gold-edge);margin:28px auto;max-width:200px;"></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:0.2em;">EXECUTIVE PERFORMANCE SYSTEM · 30D · 2026</div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">13b</span>
+      <h2 class="sec-title">Frases para os Dias Difíceis</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="quote mb-sm">
+      <div class="quote-text">"Faça o que tiver de fazer com toda a tua força." — Eclesiastes 9:10</div>
+      <div class="quote-by">Bíblia Sagrada · Ancoragem Espiritual</div>
+    </div>
+    <div class="quote mb-sm">
+      <div class="quote-text">"Disciplina é escolher entre o que você quer agora e o que você quer mais."</div>
+      <div class="quote-by">Abraham Lincoln · Sobre Foco de Longo Prazo</div>
+    </div>
+    <div class="quote mb-sm">
+      <div class="quote-text">"Você não entra na prova para tentar. Entra para confirmar o que 30 dias construíram."</div>
+      <div class="quote-by">Mentalidade ANCORD · Mentalidade de Prova</div>
+    </div>
+    <div class="quote mb-sm">
+      <div class="quote-text">"O homem que constrói sistemas vence o homem que depende de inspiração."</div>
+      <div class="quote-by">James Clear · Atomic Habits · Sobre Consistência</div>
+    </div>
+    <div class="quote mb-sm">
+      <div class="quote-text">"Nunca confunda movimento com progresso." — Denzel Washington</div>
+      <div class="quote-by">Sobre Foco Real vs. Aparência de Produtividade</div>
+    </div>
+    <div class="quote">
+      <div class="quote-text">"Ser forte não é não sentir o peso. É carregar o peso mesmo sentindo."</div>
+      <div class="quote-by">Sobre Resiliência · Para os Dias de 4h50 de Sono</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE: DIA DA PROVA
+  ══════════════════════════════════ -->
+  <div class="page" id="page-prova">
+    <div class="sec-header">
+      <span class="sec-index">14</span>
+      <h2 class="sec-title">Mentalidade & Protocolo — Dia da Prova</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="info-box mb-lg">
+      <span class="ib-icon">🏆</span>
+      <div class="ib-text">
+        <strong>A prova não é onde você aprende — é onde você confirma.</strong> Tudo que acontece no dia da prova é consequência dos 30 dias anteriores. O protocolo abaixo existe para que nada externo sabote o que foi construído internamente.
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">14a</span>
+      <h2 class="sec-title">Dia Anterior — Protocolo de Selagem</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="card card-p mb-lg">
+      <div class="time-stack">
+        <div class="time-row c-lav">
+          <div class="t-time">Manhã</div>
+          <div><div class="t-act">🙏 Devocional mais longo que o normal</div><div class="t-sub">Entrega, confiança, gratidão — não ansiedade. Você fez a sua parte.</div></div>
+          <span class="t-badge b-lav">Espiritual</span>
+        </div>
+        <div class="time-row c-teal">
+          <div class="t-time">Manhã</div>
+          <div><div class="t-act">💪 Treino leve — obrigatório</div><div class="t-sub">Libera cortisol acumulado, melhora clareza mental, ativa o corpo</div></div>
+          <span class="t-badge b-teal">Físico</span>
+        </div>
+        <div class="time-row c-gold">
+          <div class="t-time">Tarde</div>
+          <div><div class="t-act">📊 Revisão LEVE — só flashcards</div><div class="t-sub">Nenhum conteúdo novo. Só conceitos-chave já conhecidos. Máx. 1h.</div></div>
+          <span class="t-badge b-gold">ANCORD</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">Tarde</div>
+          <div><div class="t-act">🗂️ Organizar documentos e materiais</div><div class="t-sub">Identidade, confirmação de inscrição, caneta, água. Tudo na noite anterior.</div></div>
+          <span class="t-badge b-dim">Logística</span>
+        </div>
+        <div class="time-row c-dim">
+          <div class="t-time">Noite</div>
+          <div><div class="t-act">🌙 Dormir cedo — sem estudar</div><div class="t-sub">O cérebro consolida memória dormindo. Estudar até tarde prejudica mais do que ajuda.</div></div>
+          <span class="t-badge b-dim">Sono ★</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">14b</span>
+      <h2 class="sec-title">Dia da Prova — Protocolo Completo</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="card card-p mb-lg" style="border-color:var(--gold-edge);">
+      <div class="checklist">
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">☀️ Acordar cedo — pelo menos 2h antes da prova. Sem pressa de última hora.</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">🙏 Devocional — presença, ancoragem espiritual antes de qualquer coisa.</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">🥣 Café da manhã completo — proteína + carboidrato. Glicose para o cérebro.</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">📄 Confirmar documentos — identidade com foto, confirmação de inscrição impressa.</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">⏰ Chegar ao local 30 min antes — elimina ansiedade de trânsito e atraso.</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">🧘 Na sala: 3 respirações lentas antes de começar. Você está pronto.</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">👁️ Ler todas as questões antes de responder — visão geral primeiro, sempre.</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">⚡ Responder o que sabe primeiro — as difíceis ficam por último, sem travar.</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">🚫 Não mudar resposta por insegurança — primeira intuição treinada costuma acertar.</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">⏱️ Controlar o tempo — 1 olhada no relógio a cada 30 min, sem obsessão.</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">✅ Revisar o gabarito antes de entregar — calma, sem pressa no final.</div></div>
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">14c</span>
+      <h2 class="sec-title">Mentalidade de Alta Performance para Provas</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="grid-3 mb-lg">
+      <div class="rule-card">
+        <span class="rule-icon">🧊</span>
+        <div class="rule-title">Frieza Executiva</div>
+        <div class="rule-desc">Ansiedade é energia. Reframe: "Estou animado para mostrar o que aprendi." O estado fisiológico da ansiedade e da empolgação é idêntico — a interpretação é o que muda.</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">🔍</span>
+        <div class="rule-title">Questão por Questão</div>
+        <div class="rule-desc">Não pense na prova inteira — pense só na questão que está diante de você. Uma de cada vez. A prova é uma soma de questões individuais, não um monstro único.</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">💡</span>
+        <div class="rule-title">Dúvida ≠ Erro</div>
+        <div class="rule-desc">Duvidar de uma resposta não significa que está errada. Marque, siga em frente, volte depois. Travar em uma questão é o erro real — não a dúvida em si.</div>
+      </div>
+    </div>
+
+    <div class="quote mb-sm">
+      <div class="quote-text">"Você não entra na prova para tentar. Você entra para confirmar o que 30 dias de disciplina construíram. A aprovação já aconteceu — a prova é a formalidade."</div>
+      <div class="quote-by">Mentalidade EPS · Executive Performance System</div>
+    </div>
+    <div class="quote">
+      <div class="quote-text">"Forte e corajoso! Não te espantes nem te aterres, porque o Senhor teu Deus está contigo." — Josué 1:9</div>
+      <div class="quote-by">Bíblia Sagrada · Para o Dia D</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE: CARREIRA
+  ══════════════════════════════════ -->
+  <div class="page" id="page-carreira">
+    <div class="sec-header">
+      <span class="sec-index">15</span>
+      <h2 class="sec-title">Visão de Carreira — ANCORD → CFP → Tech Finance</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="info-box mb-lg">
+      <span class="ib-icon">🚀</span>
+      <div class="ib-text">
+        <strong>ANCORD não é o destino — é o portão de entrada.</strong> Esta seção existe para que você nunca perca de vista o tamanho do que está construindo. Cada hora de estudo nos próximos 30 dias não é sobre uma prova. É sobre uma trajetória de 10 anos.
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">15a</span>
+      <h2 class="sec-title">Mapa de Trajetória</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="table-wrap mb-lg">
+      <table>
+        <thead><tr><th>Fase</th><th>Marco</th><th>O que abre</th><th>Horizonte</th></tr></thead>
+        <tbody>
+          <tr style="background:var(--gold-glass);">
+            <td><span class="t-badge b-gold">AGORA</span></td>
+            <td class="td-hi">✅ ANCORD aprovado</td>
+            <td>Assessor de Investimentos · Mercado regulado · Renda variável com clientes</td>
+            <td class="td-muted">30 dias</td>
+          </tr>
+          <tr>
+            <td><span class="t-badge b-blue">FASE 2</span></td>
+            <td class="td-hi">📊 CEA (retomada)</td>
+            <td>Análise de produtos de renda variável · Diferencial técnico no mercado</td>
+            <td class="td-muted">3–6 meses</td>
+          </tr>
+          <tr>
+            <td><span class="t-badge b-blue">FASE 3</span></td>
+            <td class="td-hi">🎓 CFP (Planejador Financeiro)</td>
+            <td>Planejamento financeiro pessoal · Clientes de alta renda · Fee-based</td>
+            <td class="td-muted">1–2 anos</td>
+          </tr>
+          <tr>
+            <td><span class="t-badge b-teal">FASE 4</span></td>
+            <td class="td-hi">💻 Tech + Finance</td>
+            <td>Software financeiro · Automações · Dashboards · FinTech própria</td>
+            <td class="td-muted">2–4 anos</td>
+          </tr>
+          <tr>
+            <td><span class="t-badge b-lav">FASE 5</span></td>
+            <td class="td-hi">🏗️ Ecossistema Próprio</td>
+            <td>Assessoria + Tech + IA: perfil raro de mercado. Criador de produto financeiro.</td>
+            <td class="td-muted">5+ anos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">15b</span>
+      <h2 class="sec-title">Por que a Combinação ADS + Economia + Finanças é Rara</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="grid-3 mb-lg">
+      <div class="rule-card">
+        <span class="rule-icon">💻</span>
+        <div class="rule-title">ADS — O que dá</div>
+        <div class="rule-desc">Capacidade de construir ferramentas. Assessores que codificam criam dashboards, automações e produtos que outros precisam terceirizar. Isso se chama vantagem assimétrica.</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">📈</span>
+        <div class="rule-title">Economia — O que dá</div>
+        <div class="rule-desc">Visão macro que a maioria dos assessores não tem. Entende juros, câmbio, ciclos econômicos. Isso transforma recomendação de produto em planejamento estratégico.</div>
+      </div>
+      <div class="rule-card">
+        <span class="rule-icon">🏛️</span>
+        <div class="rule-title">ANCORD + CFP — O que dá</div>
+        <div class="rule-desc">Credenciais que criam confiança. O mercado financeiro é regulado — certificações são passaporte. ANCORD abre o mercado. CFP abre o mercado premium.</div>
+      </div>
+    </div>
+
+    <div class="info-box mb-lg" style="border-color:var(--gold-edge);background:var(--gold-glass);">
+      <span class="ib-icon">🧩</span>
+      <div class="ib-text">
+        <strong>Perfil que você está construindo:</strong> Assessor de investimentos com visão macro (Economia), capaz de construir ferramentas e automações (ADS), com certificação técnica (ANCORD/CFP) e fluência em IA aplicada. Esse perfil não tem fila de espera — ele cria o próprio mercado.
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">15c</span>
+      <h2 class="sec-title">Conexão Diária — Como cada atividade alimenta o futuro</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="table-wrap mb-lg">
+      <table>
+        <thead><tr><th>Atividade diária</th><th>Alimenta o quê</th><th>Impacto de longo prazo</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="td-label" style="color:var(--gold)">Estudo ANCORD</td>
+            <td>Certificação, linguagem do mercado, confiança técnica</td>
+            <td class="td-muted">Credencial que abre portas reguladas</td>
+          </tr>
+          <tr>
+            <td class="td-label" style="color:var(--blue)">Programação 30min</td>
+            <td>Projetos financeiros, portfólio técnico, fluência em código</td>
+            <td class="td-muted">Capacidade de construir soluções que outros pagam para ter</td>
+          </tr>
+          <tr>
+            <td class="td-label" style="color:var(--blue)">Faculdade ADS</td>
+            <td>Fundação técnica sólida, diploma, pensamento sistêmico</td>
+            <td class="td-muted">Base para FinTech e produtos digitais próprios</td>
+          </tr>
+          <tr>
+            <td class="td-label" style="color:var(--amber)">Faculdade Economia</td>
+            <td>Visão macro, entendimento de ciclos, modelos mentais financeiros</td>
+            <td class="td-muted">Diferencial de análise que raros assessores têm</td>
+          </tr>
+          <tr>
+            <td class="td-label" style="color:var(--teal)">Academia</td>
+            <td>Energia, disciplina física, gestão de stress</td>
+            <td class="td-muted">Sustentação fisiológica de uma carreira de alto nível</td>
+          </tr>
+          <tr>
+            <td class="td-label" style="color:var(--lavender)">Devocional</td>
+            <td>Ancoragem de propósito, clareza de valores, resiliência</td>
+            <td class="td-muted">O "porquê" que sustenta quando o "como" fica difícil</td>
+          </tr>
+          <tr>
+            <td class="td-label" style="color:var(--rose)">Trabalho atual</td>
+            <td>Experiência real de mercado, pessoas, processos, resiliência</td>
+            <td class="td-muted">Contexto prático que nenhuma sala de aula ensina</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="quote mb-sm">
+      <div class="quote-text">"A maioria das pessoas superestima o que pode fazer em um ano e subestima o que pode fazer em dez." — Bill Gates</div>
+      <div class="quote-by">Sobre visão de longo prazo · Para manter a calma nos dias difíceis</div>
+    </div>
+    <div class="quote">
+      <div class="quote-text">"Você está no início de algo que ainda não tem nome. Nomeie depois que construir."</div>
+      <div class="quote-by">EPS · Sobre a trajetória ANCORD → CFP → Tech Finance</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE: NOTAS DE CAMPO
+  ══════════════════════════════════ -->
+  <div class="page" id="page-campo">
+    <div class="sec-header">
+      <span class="sec-index">16</span>
+      <h2 class="sec-title">Notas de Campo — Template de Planejamento Semanal</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="info-box mb-lg">
+      <span class="ib-icon">📓</span>
+      <div class="ib-text">
+        <strong>Todo domingo às 17h</strong>, sente-se por 20–30 minutos com estas perguntas. Não é uma reunião consigo mesmo — é uma calibração de rota. Sistemas sem revisão derivam. Revisão sem sistema não tem para onde ir.
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">16a</span>
+      <h2 class="sec-title">Ritual de Revisão Semanal</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="grid-2 mb-lg">
+      <div class="card card-p">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:0.2em;margin-bottom:14px;text-transform:uppercase;">🔍 Olhar para trás — semana que passou</div>
+        <div class="topic-list">
+          <div class="topic-item"><div class="topic-dot"></div>Qual foi meu maior avanço esta semana em ANCORD?</div>
+          <div class="topic-item"><div class="topic-dot"></div>Qual tema/tópico ainda está frágil?</div>
+          <div class="topic-item"><div class="topic-dot"></div>O que me desviou do plano? Era evitável?</div>
+          <div class="topic-item"><div class="topic-dot"></div>Minha energia estava sustentável ao longo da semana?</div>
+          <div class="topic-item"><div class="topic-dot"></div>Estive presente no trabalho? Na célula? No treino?</div>
+          <div class="topic-item"><div class="topic-dot"></div>Minha vida espiritual teve espaço real?</div>
+          <div class="topic-item"><div class="topic-dot"></div>Meu código avançou? O que foi entregue?</div>
+        </div>
+      </div>
+      <div class="card card-p">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--blue);letter-spacing:0.2em;margin-bottom:14px;text-transform:uppercase;">🎯 Olhar para frente — próxima semana</div>
+        <div class="topic-list">
+          <div class="topic-item"><div class="topic-dot" style="background:var(--blue)"></div>Qual é a prioridade #1 da semana que vem?</div>
+          <div class="topic-item"><div class="topic-dot" style="background:var(--blue)"></div>Qual tópico ANCORD precisa de mais atenção?</div>
+          <div class="topic-item"><div class="topic-dot" style="background:var(--blue)"></div>O que vou proteger de cortar da rotina?</div>
+          <div class="topic-item"><div class="topic-dot" style="background:var(--blue)"></div>Tem alguma entrega de faculdade que não pode ser ignorada?</div>
+          <div class="topic-item"><div class="topic-dot" style="background:var(--blue)"></div>Qual projeto de programação vai avançar?</div>
+          <div class="topic-item"><div class="topic-dot" style="background:var(--blue)"></div>Como vou proteger meu sono e energia?</div>
+          <div class="topic-item"><div class="topic-dot" style="background:var(--blue)"></div>Qual frase/versículo vai ancorar minha semana?</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">16b</span>
+      <h2 class="sec-title">Template de Planejamento — Semana a Semana</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="table-wrap mb-lg">
+      <table>
+        <thead><tr><th>Semana</th><th>Tema ANCORD</th><th>Tópico Frágil</th><th>Meta Prog.</th><th>Frase Âncora</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="td-label">SEM. 1<br><span style="font-size:10px;color:var(--ivory-fade)">Dias 1–7</span></td>
+            <td>SFN + Ações + Renda Fixa</td>
+            <td class="td-muted" id="fr1" contenteditable="true" style="min-width:120px;outline:none;cursor:text;" title="Clique para editar">clique para preencher</td>
+            <td class="td-muted" id="mp1" contenteditable="true" style="outline:none;cursor:text;" title="Clique para editar">Simulador v1</td>
+            <td class="td-muted" id="fa1" contenteditable="true" style="outline:none;cursor:text;" title="Clique para editar">Filipenses 4:13</td>
+          </tr>
+          <tr>
+            <td class="td-label">SEM. 2<br><span style="font-size:10px;color:var(--ivory-fade)">Dias 8–14</span></td>
+            <td>Fundos + Derivativos + Ética</td>
+            <td class="td-muted" id="fr2" contenteditable="true" style="outline:none;cursor:text;" title="Clique para editar">clique para preencher</td>
+            <td class="td-muted" id="mp2" contenteditable="true" style="outline:none;cursor:text;" title="Clique para editar">Simulador publicado</td>
+            <td class="td-muted" id="fa2" contenteditable="true" style="outline:none;cursor:text;" title="Clique para editar">Eclesiastes 9:10</td>
+          </tr>
+          <tr>
+            <td class="td-label">SEM. 3<br><span style="font-size:10px;color:var(--ivory-fade)">Dias 15–21</span></td>
+            <td>Consolidação + Simulados</td>
+            <td class="td-muted" id="fr3" contenteditable="true" style="outline:none;cursor:text;" title="Clique para editar">clique para preencher</td>
+            <td class="td-muted" id="mp3" contenteditable="true" style="outline:none;cursor:text;" title="Clique para editar">Dashboard v1</td>
+            <td class="td-muted" id="fa3" contenteditable="true" style="outline:none;cursor:text;" title="Clique para editar">Josué 1:9</td>
+          </tr>
+          <tr>
+            <td class="td-label">SEM. 4<br><span style="font-size:10px;color:var(--ivory-fade)">Dias 22–30</span></td>
+            <td>Blindagem + Prova</td>
+            <td class="td-muted" id="fr4" contenteditable="true" style="outline:none;cursor:text;" title="Clique para editar">clique para preencher</td>
+            <td class="td-muted" id="mp4" contenteditable="true" style="outline:none;cursor:text;" title="Clique para editar">Avançar dashboard</td>
+            <td class="td-muted" id="fa4" contenteditable="true" style="outline:none;cursor:text;" title="Clique para editar">Salmos 27:1</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-box mb-lg">
+      <span class="ib-icon">✏️</span>
+      <div class="ib-text">As células da tabela acima são <strong>editáveis</strong> — clique para preencher com seus dados reais. Ao longo das 4 semanas, registre seus pontos fracos e ajuste a rota em tempo real.</div>
+    </div>
+
+    <div class="sec-header">
+      <span class="sec-index">16c</span>
+      <h2 class="sec-title">Sistema de Pontuação Semanal</h2>
+      <div class="sec-rule"></div>
+    </div>
+
+    <div class="table-wrap mb-lg">
+      <table>
+        <thead><tr><th>Atividade</th><th>Pontos se cumprida</th><th>Meta semanal</th></tr></thead>
+        <tbody>
+          <tr><td class="td-hi">Bloco ANCORD completo (diário)</td><td style="color:var(--gold)">+3 pts</td><td class="td-muted">21 pts/semana</td></tr>
+          <tr><td class="td-hi">Questões do dia concluídas</td><td style="color:var(--gold)">+2 pts</td><td class="td-muted">14 pts/semana</td></tr>
+          <tr><td class="td-hi">Programação 30 min</td><td style="color:var(--blue)">+2 pts</td><td class="td-muted">12 pts/semana</td></tr>
+          <tr><td class="td-hi">Devocional realizado</td><td style="color:var(--lavender)">+2 pts</td><td class="td-muted">14 pts/semana</td></tr>
+          <tr><td class="td-hi">Treino concluído</td><td style="color:var(--teal)">+2 pts</td><td class="td-muted">10 pts/semana</td></tr>
+          <tr><td class="td-hi">Simulado no domingo</td><td style="color:var(--gold)">+5 pts</td><td class="td-muted">5 pts/semana</td></tr>
+          <tr><td class="td-hi">Protocolo de sono respeitado</td><td style="color:var(--teal)">+1 pt</td><td class="td-muted">7 pts/semana</td></tr>
+          <tr style="background:var(--gold-glass);">
+            <td><strong style="color:var(--gold)">Total possível/semana</strong></td>
+            <td><strong style="color:var(--gold)">—</strong></td>
+            <td><strong style="color:var(--gold)">~83 pts</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid-3">
+      <div class="rule-card" style="text-align:center;padding:22px;">
+        <div style="font-size:28px;font-family:'Cormorant Garamond',serif;font-weight:700;color:var(--teal);margin-bottom:4px;">70–83</div>
+        <div style="font-size:11px;font-weight:700;color:var(--ivory);margin-bottom:4px;">Semana Elite</div>
+        <div class="rule-desc">Você executou. Sem desculpas. Recompensa merecida.</div>
+      </div>
+      <div class="rule-card" style="text-align:center;padding:22px;">
+        <div style="font-size:28px;font-family:'Cormorant Garamond',serif;font-weight:700;color:var(--gold);margin-bottom:4px;">50–69</div>
+        <div style="font-size:11px;font-weight:700;color:var(--ivory);margin-bottom:4px;">Semana Sólida</div>
+        <div class="rule-desc">Bom trabalho. Ajuste o que faltou na próxima.</div>
+      </div>
+      <div class="rule-card" style="text-align:center;padding:22px;">
+        <div style="font-size:28px;font-family:'Cormorant Garamond',serif;font-weight:700;color:var(--rose);margin-bottom:4px;">&lt; 50</div>
+        <div style="font-size:11px;font-weight:700;color:var(--ivory);margin-bottom:4px;">Semana de Aprendizado</div>
+        <div class="rule-desc">Identifique o padrão sabotador. Ajuste. Não repita.</div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- end content -->
+</main>
+</div><!-- end app -->
+
+<button class="print-btn" onclick="window.print()">⬇ Exportar PDF</button>
+
+<script>
+/* ══════════════════════════════════
+   NAVIGATION
+══════════════════════════════════ */
+const titles = {
+  dashboard: 'Dashboard',
+  segunda: 'Segunda-Feira',
+  'ter-sex': 'Terça a Sexta',
+  sabado: 'Sábado',
+  domingo: 'Domingo',
+  ancord: 'Plano ANCORD 30 Dias',
+  retencao: 'Estratégia de Retenção',
+  energia: 'Energia & Anti-Burnout',
+  programacao: 'Programação Financeira',
+  academico: 'Estratégia Acadêmica',
+  tracker: 'Tracker 30 Dias',
+  checklist: 'Checklist & Disciplina',
+  prova: 'Mentalidade & Dia da Prova',
+  carreira: 'Visão de Carreira — ANCORD → CFP',
+  campo: 'Notas de Campo',
+  manifesto: 'Manifesto'
+};
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  if (page) page.classList.add('active');
+  const navItem = document.querySelector(`[onclick="showPage('${id}')"]`);
+  if (navItem) {
+    navItem.classList.add('active');
+    // Scroll the active nav item into view on mobile bottom-nav
+    navItem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
+  document.getElementById('topbar-title').textContent = titles[id] || id;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ══════════════════════════════════
+   CHECKLIST
+══════════════════════════════════ */
+function toggleCheck(item) {
+  item.classList.toggle('checked');
+}
+
+/* ══════════════════════════════════
+   TRACKER
+══════════════════════════════════ */
+const trackerEl = document.getElementById('tracker');
+const restDays = [6, 7, 13, 14, 20, 21, 27, 28]; // Sáb/Dom de cada semana
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem('eps-tracker') || '{}'); } catch(e) {}
+
+function calcStreak() {
+  let streak = 0;
+  for (let i = 30; i >= 1; i--) {
+    if (saved[i]) streak++;
+    else if (i < 30) break;
+  }
+  return streak;
+}
+
+function updateStats() {
+  const done = Object.values(saved).filter(Boolean).length;
+  document.getElementById('t-done').textContent = done;
+  document.getElementById('t-streak').textContent = calcStreak();
+}
+
+for (let i = 1; i <= 30; i++) {
+  const day = document.createElement('div');
+  day.className = 't-day' + (restDays.includes(i) ? ' rest' : '') + (saved[i] ? ' done' : '');
+  day.dataset.day = i;
+  day.innerHTML = `${i}<span class="t-day-sub">${restDays.includes(i) ? 'REST' : 'DIA'}</span>`;
+
+  day.addEventListener('click', () => {
+    saved[i] = !saved[i];
+    day.classList.toggle('done', saved[i]);
+    try { localStorage.setItem('eps-tracker', JSON.stringify(saved)); } catch(e) {}
+    updateStats();
+  });
+
+  trackerEl.appendChild(day);
+}
+
+updateStats();
+</script>
+
+<!-- ══════════════════════════════════
+     PWA: INSTALL BANNER + SW REGISTER
+══════════════════════════════════ -->
+
+<!-- Install banner (aparece só quando instalável) -->
+<div id="install-banner" style="
+  display:none;
+  position:fixed;
+  bottom:0; left:0; right:0;
+  background:#13131A;
+  border-top:1px solid rgba(191,164,106,0.25);
+  padding:14px 20px calc(14px + env(safe-area-inset-bottom));
+  z-index:9999;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  font-family:'Syne',sans-serif;
+  animation: slideUp 0.3s ease;
+">
+  <div style="display:flex;align-items:center;gap:12px;flex:1;">
+    <img src="icon-192.svg" width="40" height="40" style="border-radius:10px;flex-shrink:0;" alt="EPS">
+    <div>
+      <div style="font-size:13px;font-weight:700;color:#EDE8DC;line-height:1.2;">Executive Performance System</div>
+      <div style="font-size:11px;color:#A09880;margin-top:2px;">Adicionar à tela inicial · Funciona offline</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;flex-shrink:0;">
+    <button id="install-dismiss" style="
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.1);
+      color:#A09880;
+      padding:8px 14px;
+      border-radius:99px;
+      font-family:'Syne',sans-serif;
+      font-size:12px;
+      cursor:pointer;
+    ">Agora não</button>
+    <button id="install-accept" style="
+      background:#BFA46A;
+      border:none;
+      color:#08080C;
+      padding:8px 16px;
+      border-radius:99px;
+      font-family:'Syne',sans-serif;
+      font-size:12px;
+      font-weight:700;
+      cursor:pointer;
+    ">Instalar</button>
+  </div>
+</div>
+
+<!-- Toast de atualização disponível -->
+<div id="update-toast" style="
+  display:none;
+  position:fixed;
+  top:16px; right:16px;
+  background:#13131A;
+  border:1px solid rgba(191,164,106,0.3);
+  border-radius:12px;
+  padding:12px 16px;
+  z-index:9999;
+  font-family:'Syne',sans-serif;
+  font-size:12px;
+  color:#EDE8DC;
+  gap:10px;
+  align-items:center;
+  max-width:280px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  animation: fadeIn 0.3s ease;
+">
+  <span style="font-size:16px;">🔄</span>
+  <div style="flex:1;">
+    <div style="font-weight:700;font-size:12px;">Nova versão disponível</div>
+    <div style="color:#A09880;font-size:11px;margin-top:1px;">Atualize para obter melhorias</div>
+  </div>
+  <button id="update-btn" style="
+    background:#BFA46A; border:none; color:#08080C;
+    padding:6px 12px; border-radius:99px;
+    font-family:'Syne',sans-serif; font-size:11px;
+    font-weight:700; cursor:pointer; white-space:nowrap;
+  ">Atualizar</button>
+</div>
+
+<!-- Offline indicator -->
+<div id="offline-bar" style="
+  display:none;
+  position:fixed;
+  top:0; left:0; right:0;
+  background:rgba(224,112,112,0.15);
+  border-bottom:1px solid rgba(224,112,112,0.3);
+  padding:6px 20px;
+  text-align:center;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;
+  letter-spacing:0.1em;
+  color:#E07070;
+  z-index:9998;
+  text-transform:uppercase;
+">
+  ◎ Modo offline — dados salvos localmente
+</div>
+
+<style>
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Banner visible state */
+#install-banner.visible { display: flex; }
+#update-toast.visible   { display: flex; }
+#offline-bar.visible    { display: block; }
+</style>
+
+<script>
+/* ════════════════════════════════════════
+   SERVICE WORKER REGISTRATION
+════════════════════════════════════════ */
+let swRegistration = null;
+let deferredInstallPrompt = null;
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => {
+        swRegistration = reg;
+        console.log('[EPS] SW registered:', reg.scope);
+
+        // Checar por updates
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // Nova versão disponível
+              showUpdateToast(newWorker);
+            }
+          });
+        });
+      })
+      .catch(err => console.warn('[EPS] SW registration failed:', err));
+
+    // Detectar controller change (update aplicado)
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      window.location.reload();
+    });
+  });
+}
+
+/* ════════════════════════════════════════
+   INSTALL PROMPT
+════════════════════════════════════════ */
+const installBanner  = document.getElementById('install-banner');
+const installAccept  = document.getElementById('install-accept');
+const installDismiss = document.getElementById('install-dismiss');
+
+// Captura o evento beforeinstallprompt
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+
+  // Mostra banner após 3s (não invasivo)
+  const dismissed = sessionStorage.getItem('eps-install-dismissed');
+  if (!dismissed) {
+    setTimeout(() => installBanner.classList.add('visible'), 3000);
+  }
+});
+
+installAccept.addEventListener('click', async () => {
+  if (!deferredInstallPrompt) return;
+  installBanner.classList.remove('visible');
+  deferredInstallPrompt.prompt();
+  const { outcome } = await deferredInstallPrompt.userChoice;
+  console.log('[EPS] Install outcome:', outcome);
+  deferredInstallPrompt = null;
+});
+
+installDismiss.addEventListener('click', () => {
+  installBanner.classList.remove('visible');
+  sessionStorage.setItem('eps-install-dismissed', '1');
+});
+
+// iOS: sem beforeinstallprompt — mostra instrução manual
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isInStandaloneMode = window.navigator.standalone === true;
+if (isIOS && !isInStandaloneMode) {
+  setTimeout(() => {
+    const dismissed = sessionStorage.getItem('eps-install-dismissed');
+    if (!dismissed) {
+      installBanner.querySelector('.install-text') && (installBanner.querySelector('.install-text').textContent = '');
+      // Replace subtitle for iOS
+      const sub = installBanner.querySelector('div > div:last-child');
+      if (sub) sub.textContent = 'Toque em  ⎙  e depois "Adicionar à tela"';
+      installAccept.textContent = 'Entendi';
+      installAccept.onclick = () => {
+        installBanner.classList.remove('visible');
+        sessionStorage.setItem('eps-install-dismissed', '1');
+      };
+      installBanner.classList.add('visible');
+    }
+  }, 4000);
+}
+
+window.addEventListener('appinstalled', () => {
+  console.log('[EPS] App installed!');
+  installBanner.classList.remove('visible');
+  deferredInstallPrompt = null;
+});
+
+/* ════════════════════════════════════════
+   UPDATE TOAST
+════════════════════════════════════════ */
+const updateToast = document.getElementById('update-toast');
+const updateBtn   = document.getElementById('update-btn');
+
+function showUpdateToast(worker) {
+  updateToast.classList.add('visible');
+  updateBtn.addEventListener('click', () => {
+    worker.postMessage('skipWaiting');
+    updateToast.classList.remove('visible');
+  });
+}
+
+/* ════════════════════════════════════════
+   OFFLINE / ONLINE DETECTION
+════════════════════════════════════════ */
+const offlineBar = document.getElementById('offline-bar');
+
+function updateOnlineStatus() {
+  if (!navigator.onLine) {
+    offlineBar.classList.add('visible');
+  } else {
+    offlineBar.classList.remove('visible');
+  }
+}
+
+window.addEventListener('online',  updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+updateOnlineStatus();
+
+/* ════════════════════════════════════════
+   DEEP LINK via hash (shortcuts do manifest)
+════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  const hash = window.location.hash.replace('#', '');
+  if (hash && document.getElementById('page-' + hash)) {
+    setTimeout(() => showPage(hash), 100);
+  }
+});
+</script>
+
+</body>
+</html>
